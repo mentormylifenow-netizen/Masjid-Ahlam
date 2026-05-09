@@ -8,6 +8,8 @@
    */
   const ADHAN_MP3_URL =
     "https://raw.githubusercontent.com/achaudhry/adhan/master/Adhan-Mishary-Rashid-Al-Afasy.mp3";
+  /** Single global player for all prayer sequence recitations (local + remote). */
+  const mainPlayer = new Audio();
 
   /** Display order; Tahajjud uses API field `Lastthird`. */
   const PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha", "Tahajjud"];
@@ -1744,7 +1746,7 @@
    * User pause is tracked as `paused`; expose via `isPaused()` on the runner.
    */
   function createSalahSequenceRunner() {
-    const audio = new Audio();
+    const audio = mainPlayer;
     let silenceTimer = null;
     /** @type {'off' | 'silence' | 'audio' | 'postAudioSilence'} */
     let phase = "off";
@@ -1767,7 +1769,7 @@
     let postAudioSilenceTimer = null;
     let postAudioSilenceDeadline = 0;
     let postAudioSilenceRemainingMs = 0;
-    /** @type {{ setRecitation?: (lines: { arabic: string, transliteration: string, english: string }) => void, onComplete?: () => void, onRunStart?: () => void, onTransportSync?: () => void }} */
+    /** @type {{ setRecitation?: (lines: { arabic: string, transliteration: string, english: string }) => void, onComplete?: () => void, onRunStart?: () => void, onTransportSync?: () => void, onLoadingChange?: (loading: boolean) => void }} */
     let callbacks = {};
 
     function clearPostAudioSilenceTimer() {
@@ -1795,6 +1797,8 @@
     function detachAudioHandlers() {
       audio.onended = null;
       audio.onerror = null;
+      audio.oncanplay = null;
+      audio.onplaying = null;
     }
 
     function notifyTransport() {
@@ -1837,14 +1841,18 @@
       clipAdvanceFn = null;
       audioClipRemainingMs = 0;
       audio.pause();
+      if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
       if (!src) {
         onEnded();
         return;
       }
+      const isRemoteSrc = /^https?:\/\//i.test(src);
+      if (callbacks.onLoadingChange) callbacks.onLoadingChange(isRemoteSrc);
       let finished = false;
       function finishOnce() {
         if (finished) return;
         finished = true;
+        if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         clearAudioClipTimer();
         clipAdvanceFn = null;
         detachAudioHandlers();
@@ -1853,6 +1861,14 @@
       clipAdvanceFn = finishOnce;
 
       audio.src = src;
+      if (isRemoteSrc) {
+        audio.oncanplay = function () {
+          if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+        };
+        audio.onplaying = function () {
+          if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+        };
+      }
       audio.onended = function () {
         finishOnce();
       };
@@ -1886,6 +1902,7 @@
         silenceDeadline = 0;
         clearAudioClipTimer();
         clipAdvanceFn = null;
+        if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         detachAudioHandlers();
         audio.pause();
         if (callbacks.onComplete) callbacks.onComplete();
@@ -1954,7 +1971,7 @@
     return {
       /**
        * @param {ReturnType<typeof buildFajrRakat1Sequence>} stepList
-       * @param {{ setRecitation?: (lines: { arabic: string, transliteration: string, english: string }) => void, onComplete?: () => void, onRunStart?: () => void, onTransportSync?: () => void }} cb
+       * @param {{ setRecitation?: (lines: { arabic: string, transliteration: string, english: string }) => void, onComplete?: () => void, onRunStart?: () => void, onTransportSync?: () => void, onLoadingChange?: (loading: boolean) => void }} cb
        */
       start: function (stepList, cb) {
         this.stop();
@@ -2050,6 +2067,7 @@
         audioClipRemainingMs = 0;
         postAudioSilenceDeadline = 0;
         postAudioSilenceRemainingMs = 0;
+        if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         detachAudioHandlers();
         audio.pause();
         try {
@@ -2082,6 +2100,8 @@
 
   let isLearningMode = true;
   let currentPrayerName = "";
+  /** Whether the sequence player is currently waiting on remote audio readiness. */
+  let isSequenceLoading = false;
 
   /**
    * Global user-pause flag for the Virtual Imam sequencer (Fajr); mirrors `fajrSalahSequence.isPaused()`.
@@ -2191,17 +2211,11 @@
     }
   }
 
-  /** @type {HTMLInputElement | null} */
-  let prayerTimeInputEl = null;
-  /** @type {string | null} */
-  let activeEditablePrayerName = null;
-
   /**
-   * Native `<input type="time">` can keep focus after `showPicker()` / iOS sheet closes,
-   * leaving an invisible focus target that steals taps from the Tahajjud row.
+   * Native time inputs keep focus briefly after the picker closes; blur so the next tap
+   * hits the row correctly (esp. Tahajjud above/below).
    */
-  function blurPrayerTimeInput() {
-    const inp = prayerTimeInputEl;
+  function blurPrayerTimeInputEl(inp) {
     if (!inp) return;
     inp.blur();
     window.requestAnimationFrame(function () {
@@ -2228,78 +2242,28 @@
   }
 
   /**
-   * @returns {HTMLInputElement}
-   */
-  function ensurePrayerTimeInput() {
-    if (prayerTimeInputEl) return prayerTimeInputEl;
-    const inp = document.createElement("input");
-    inp.type = "time";
-    inp.step = "60";
-    inp.className = "prayer-time-input-native";
-    inp.setAttribute("aria-hidden", "true");
-    inp.setAttribute("tabindex", "-1");
-    inp.addEventListener("change", function () {
-      if (!inp.value || !activeEditablePrayerName) return;
-      saveManualPrayerHm(activeEditablePrayerName, inp.value);
-      savePrayerTimeOverrides();
-      updateAllPrayerTimeButtonLabels();
-      updatePrayerRowsNextHighlight();
-      blurPrayerTimeInput();
-    });
-    document.body.appendChild(inp);
-    prayerTimeInputEl = inp;
-    return inp;
-  }
-
-  /**
-   * @param {string} prayerName
-   */
-  function openPrayerTimePicker(prayerName) {
-    activeEditablePrayerName = prayerName;
-    const inp = ensurePrayerTimeInput();
-    let seed = manualPrayerHm(prayerName);
-    if (!seed && currentTimings) {
-      const effective = timingsWithManualOverrides(currentTimings);
-      const raw = timingRawForPrayer(effective, prayerName);
-      seed = toHmKey(typeof raw === "string" ? raw : "");
-    }
-    inp.value = seed || "02:00";
-    function afterPickerUi() {
-      blurPrayerTimeInput();
-    }
-    try {
-      if (typeof inp.showPicker === "function") {
-        const ret = inp.showPicker();
-        if (ret && typeof ret.then === "function") {
-          ret.then(afterPickerUi).catch(afterPickerUi);
-        }
-        /* If no Promise, rely on `change` + blur only — avoid blurring while UI is open. */
-      } else {
-        inp.focus();
-        inp.click();
-        window.setTimeout(afterPickerUi, 500);
-      }
-    } catch {
-      inp.focus();
-      window.setTimeout(afterPickerUi, 500);
-    }
-  }
-
-  /**
    * @param {string} prayerName
    */
   function updatePrayerTimeButtonLabel(prayerName) {
-    const btn = document.querySelector('[data-prayer-time-button="' + prayerName + '"]');
-    if (!btn) return;
+    const wrap = document.querySelector('[data-prayer-time-button="' + prayerName + '"]');
+    if (!wrap) return;
     let display = manualPrayerHm(prayerName) || "—";
     if (!manualPrayerHm(prayerName) && currentTimings) {
       const effective = timingsWithManualOverrides(currentTimings);
       const raw = timingRawForPrayer(effective, prayerName);
       display = cleanTime(typeof raw === "string" ? raw : "");
     }
-    const inner = btn.querySelector(".prayer-time__inner");
+    const inner = wrap.querySelector(".prayer-time__inner");
     if (inner) inner.textContent = display;
-    btn.setAttribute("aria-label", "Set " + prayerName + " alarm time, currently " + display);
+    const inp = wrap.querySelector('input[type="time"]');
+    if (inp) {
+      const key = toHmKey(display);
+      inp.value = key || "02:00";
+    }
+    wrap.setAttribute("aria-label", "Set " + prayerName + " alarm time, currently " + display);
+    if (inp) {
+      inp.setAttribute("aria-label", "Set " + prayerName + " alarm time, currently " + display);
+    }
   }
 
   function updateAllPrayerTimeButtonLabels() {
@@ -2360,6 +2324,67 @@
     btnFajrPrayerFinish: document.getElementById("btn-fajr-prayer-finish"),
   };
 
+  /**
+   * @returns {HTMLSpanElement | null}
+   */
+  function ensureSequenceLoadingBadge() {
+    const btn = els.btnStartFajrSalah;
+    if (!btn) return null;
+    let badge = btn.querySelector(".fajr-play-btn__loading");
+    if (badge) return /** @type {HTMLSpanElement} */ (badge);
+    badge = document.createElement("span");
+    badge.className = "fajr-play-btn__loading";
+    badge.textContent = "Loading...";
+    badge.setAttribute("aria-hidden", "true");
+    btn.appendChild(badge);
+    try {
+      btn.style.position = "relative";
+      badge.style.position = "absolute";
+      badge.style.left = "50%";
+      badge.style.bottom = "-1.1rem";
+      badge.style.transform = "translateX(-50%)";
+      badge.style.fontSize = "0.68rem";
+      badge.style.fontWeight = "600";
+      badge.style.letterSpacing = "0.03em";
+      badge.style.color = "var(--accent-bright)";
+      badge.style.whiteSpace = "nowrap";
+      badge.style.opacity = "0";
+      badge.style.pointerEvents = "none";
+      badge.style.transition = "opacity 0.15s ease";
+    } catch {
+      /* ignore inline style failures */
+    }
+    return badge;
+  }
+
+  /**
+   * @param {boolean} loading
+   */
+  function setSequenceLoading(loading) {
+    isSequenceLoading = loading;
+    const badge = ensureSequenceLoadingBadge();
+    if (badge) badge.style.opacity = loading ? "1" : "0";
+    const btn = els.btnStartFajrSalah;
+    if (!btn) return;
+    btn.classList.toggle("fajr-play-btn--loading", loading);
+    syncFajrTransportUi();
+  }
+
+  function primeMainPlayerFromUserGesture() {
+    try {
+      mainPlayer.pause();
+      mainPlayer.src = "";
+      const p = mainPlayer.play();
+      if (p) {
+        p.catch(function () {
+          /* Some browsers block this even on user gesture; normal playback still attempts later. */
+        });
+      }
+    } catch {
+      /* no-op */
+    }
+  }
+
   function syncFajrTransportUi() {
     const btn = els.btnStartFajrSalah;
     if (!btn) return;
@@ -2377,6 +2402,9 @@
     } else {
       btn.setAttribute("aria-label", "Pause " + prayerLabel + " Salah");
       btn.setAttribute("aria-pressed", "true");
+    }
+    if (isSequenceLoading) {
+      btn.setAttribute("aria-label", "Loading " + prayerLabel + " recitation...");
     }
   }
 
@@ -2434,6 +2462,7 @@
     clearRecitationDisplay();
     if (els.btnStartFajrSalah) els.btnStartFajrSalah.disabled = false;
     isPaused = false;
+    setSequenceLoading(false);
     setPrayerHeaderSequencerHidden(false);
     syncFajrTransportUi();
   }
@@ -2465,8 +2494,10 @@
         if (els.recitationEn) els.recitationEn.textContent = lines.english;
       },
       onTransportSync: syncFajrTransportUi,
+      onLoadingChange: setSequenceLoading,
       onComplete: function () {
         clearRecitationDisplay();
+        setSequenceLoading(false);
         setPrayerHeaderSequencerHidden(false);
         syncFajrTransportUi();
         showFajrPrayerCompleteUi();
@@ -2582,6 +2613,45 @@
   /** After one silent unlock, scheduled `play()` is allowed by autoplay policy. */
   let adhanAutoplayUnlocked = false;
   let silentAutoplayUnlockInFlight = false;
+
+  /** Created on first user gesture so `resume()` runs in-stack on iOS Safari. */
+  let adhanPreviewAudioContext = null;
+
+  /**
+   * Tie audio output to the current user gesture before any `await` / network wait
+   * so iOS Safari does not block the later real `play()` after `canplay`.
+   */
+  function primeAdhanPlaybackFromUserGesture() {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        if (!adhanPreviewAudioContext) adhanPreviewAudioContext = new AC();
+        if (adhanPreviewAudioContext.state === "suspended") {
+          void adhanPreviewAudioContext.resume();
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    try {
+      adhanAudio.pause();
+      adhanAudio.currentTime = 0;
+      const p = adhanAudio.play();
+      if (p && typeof p.then === "function") {
+        p.then(function () {
+          adhanAudio.pause();
+          adhanAudio.currentTime = 0;
+        }).catch(function () {
+          /* not loaded yet — gesture still consumed for policy */
+        });
+      } else {
+        adhanAudio.pause();
+        adhanAudio.currentTime = 0;
+      }
+    } catch {
+      /* ignore */
+    }
+  }
 
   const adhanAudio = new Audio();
   adhanAudio.preload = "auto";
@@ -3124,16 +3194,40 @@
         showPrayerView(name);
       });
 
-      const timeBtn = document.createElement("button");
-      timeBtn.type = "button";
-      timeBtn.className = "prayer-time prayer-time--editable";
-      timeBtn.setAttribute("data-prayer-time-button", name);
-      timeBtn.setAttribute("aria-label", "Set " + name + " alarm time, currently " + displayHm);
+      const timeWrap = document.createElement("div");
+      timeWrap.className = "prayer-time prayer-time--editable";
+      timeWrap.setAttribute("data-prayer-time-button", name);
+      timeWrap.setAttribute(
+        "aria-label",
+        "Set " + name + " alarm time, currently " + displayHm
+      );
       const timeInner = document.createElement("span");
       timeInner.className = "prayer-time__inner";
       timeInner.textContent = displayHm;
-      timeBtn.appendChild(timeInner);
-      timeCol.appendChild(timeBtn);
+      timeInner.setAttribute("aria-hidden", "true");
+      const timeInp = document.createElement("input");
+      timeInp.type = "time";
+      timeInp.step = "60";
+      timeInp.className = "prayer-time-input-native";
+      timeInp.value = toHmKey(displayHm) || "02:00";
+      timeInp.setAttribute(
+        "aria-label",
+        "Set " + name + " alarm time, currently " + displayHm
+      );
+      timeInp.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+      });
+      timeInp.addEventListener("change", function () {
+        if (!timeInp.value) return;
+        saveManualPrayerHm(name, timeInp.value);
+        savePrayerTimeOverrides();
+        updateAllPrayerTimeButtonLabels();
+        updatePrayerRowsNextHighlight();
+        blurPrayerTimeInputEl(timeInp);
+      });
+      timeWrap.appendChild(timeInner);
+      timeWrap.appendChild(timeInp);
+      timeCol.appendChild(timeWrap);
 
       hitWrap.appendChild(mainHit);
       hitWrap.appendChild(timeCol);
@@ -3264,6 +3358,9 @@
 
   function onPreviewAdhanClick() {
     hideAudioError();
+    if (adhanAudio.paused) {
+      primeAdhanPlaybackFromUserGesture();
+    }
     whenAdhanCanPlay()
       .then(function () {
         if (adhanAudio.paused) {
@@ -3286,20 +3383,6 @@
   adhanAudio.addEventListener("pause", syncPreviewButtonUi);
   adhanAudio.addEventListener("ended", syncPreviewButtonUi);
 
-  if (els.prayerList) {
-    els.prayerList.addEventListener("click", function (ev) {
-      const t = ev.target && ev.target.closest
-        ? ev.target.closest("[data-prayer-time-button]")
-        : null;
-      if (!t) return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      const prayerName = t.getAttribute("data-prayer-time-button");
-      if (!prayerName) return;
-      openPrayerTimePicker(prayerName);
-    });
-  }
-
   els.btnRequest.addEventListener("click", requestLocation);
   els.btnRetry.addEventListener("click", requestLocation);
   if (els.btnPreviewAdhan) {
@@ -3316,6 +3399,7 @@
   }
   if (els.btnStartFajrSalah) {
     els.btnStartFajrSalah.addEventListener("click", function () {
+      primeMainPlayerFromUserGesture();
       if (!fajrSalahSequence.isActive()) {
         startSelectedPrayerSequence();
       } else if (fajrSalahSequence.isPaused()) {
