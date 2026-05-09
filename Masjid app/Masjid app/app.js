@@ -1747,6 +1747,11 @@
    */
   function createSalahSequenceRunner() {
     const audio = mainPlayer;
+    /** Loads the upcoming remote step in the background while `audio` plays the current one. */
+    const preloadAudio = new Audio();
+    preloadAudio.preload = "auto";
+    preloadAudio.muted = true;
+    preloadAudio.volume = 0;
     let silenceTimer = null;
     /** @type {'off' | 'silence' | 'audio' | 'postAudioSilence'} */
     let phase = "off";
@@ -1808,6 +1813,63 @@
     function resolveSrc(step) {
       if (step.audioUrl) return step.audioUrl;
       return null;
+    }
+
+    function clearPreloadAudio() {
+      try {
+        preloadAudio.pause();
+        preloadAudio.removeAttribute("src");
+        preloadAudio.load();
+      } catch {
+        /* ignore */
+      }
+    }
+
+    /**
+     * @param {string} a
+     * @param {string} b
+     * @returns {boolean}
+     */
+    function urlsRoughlyEqual(a, b) {
+      if (!a || !b) return false;
+      try {
+        return new URL(a, typeof location !== "undefined" ? location.href : undefined).href ===
+          new URL(b, typeof location !== "undefined" ? location.href : undefined).href;
+      } catch {
+        return a === b;
+      }
+    }
+
+    /**
+     * First upcoming HTTP(S) clip after index `fromIdx` (skips silence / traditional surah mutes).
+     * @param {number} fromIdx
+     * @returns {string | null}
+     */
+    function nextPlayableHttpSrc(fromIdx) {
+      for (let i = fromIdx; i < steps.length; i++) {
+        const st = steps[i];
+        if (st.silenceMs != null) continue;
+        if (st.isSurah && !isLearningMode) continue;
+        const s = resolveSrc(st);
+        if (s && /^https?:\/\//i.test(s)) return s;
+      }
+      return null;
+    }
+
+    function armNextTrackPreload() {
+      if (!active) return;
+      const nextSrc = nextPlayableHttpSrc(stepIndex + 1);
+      if (!nextSrc) {
+        clearPreloadAudio();
+        return;
+      }
+      try {
+        const already = preloadAudio.currentSrc || preloadAudio.src || "";
+        if (urlsRoughlyEqual(nextSrc, already)) return;
+        preloadAudio.src = nextSrc;
+      } catch {
+        /* ignore */
+      }
     }
 
     function armSilenceTimer() {
@@ -1889,6 +1951,7 @@
           finishOnce();
         });
       }
+      armNextTrackPreload();
     }
 
     function tick() {
@@ -1905,6 +1968,7 @@
         if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         detachAudioHandlers();
         audio.pause();
+        clearPreloadAudio();
         if (callbacks.onComplete) callbacks.onComplete();
         return;
       }
@@ -1923,6 +1987,7 @@
         phase = "silence";
         silenceRemainingMs = step.silenceMs;
         armSilenceTimer();
+        armNextTrackPreload();
         return;
       }
 
@@ -1931,6 +1996,7 @@
         silenceRemainingMs =
           step.muteDuration != null ? step.muteDuration : TRADITIONAL_SURAH_SILENCE_MS;
         armSilenceTimer();
+        armNextTrackPreload();
         return;
       }
 
@@ -2070,6 +2136,7 @@
         if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         detachAudioHandlers();
         audio.pause();
+        clearPreloadAudio();
         try {
           audio.removeAttribute("src");
         } catch {
@@ -2211,17 +2278,11 @@
     }
   }
 
-  /** @type {HTMLInputElement | null} */
-  let prayerTimeInputEl = null;
-  /** @type {string | null} */
-  let activeEditablePrayerName = null;
-
   /**
-   * Native `<input type="time">` can keep focus after `showPicker()` / iOS sheet closes,
-   * leaving an invisible focus target that steals taps from the Tahajjud row.
+   * Native time inputs keep focus briefly after the picker closes; blur so the next tap
+   * hits the row correctly (esp. Tahajjud above/below).
    */
-  function blurPrayerTimeInput() {
-    const inp = prayerTimeInputEl;
+  function blurPrayerTimeInputEl(inp) {
     if (!inp) return;
     inp.blur();
     window.requestAnimationFrame(function () {
@@ -2248,78 +2309,28 @@
   }
 
   /**
-   * @returns {HTMLInputElement}
-   */
-  function ensurePrayerTimeInput() {
-    if (prayerTimeInputEl) return prayerTimeInputEl;
-    const inp = document.createElement("input");
-    inp.type = "time";
-    inp.step = "60";
-    inp.className = "prayer-time-input-native";
-    inp.setAttribute("aria-hidden", "true");
-    inp.setAttribute("tabindex", "-1");
-    inp.addEventListener("change", function () {
-      if (!inp.value || !activeEditablePrayerName) return;
-      saveManualPrayerHm(activeEditablePrayerName, inp.value);
-      savePrayerTimeOverrides();
-      updateAllPrayerTimeButtonLabels();
-      updatePrayerRowsNextHighlight();
-      blurPrayerTimeInput();
-    });
-    document.body.appendChild(inp);
-    prayerTimeInputEl = inp;
-    return inp;
-  }
-
-  /**
-   * @param {string} prayerName
-   */
-  function openPrayerTimePicker(prayerName) {
-    activeEditablePrayerName = prayerName;
-    const inp = ensurePrayerTimeInput();
-    let seed = manualPrayerHm(prayerName);
-    if (!seed && currentTimings) {
-      const effective = timingsWithManualOverrides(currentTimings);
-      const raw = timingRawForPrayer(effective, prayerName);
-      seed = toHmKey(typeof raw === "string" ? raw : "");
-    }
-    inp.value = seed || "02:00";
-    function afterPickerUi() {
-      blurPrayerTimeInput();
-    }
-    try {
-      if (typeof inp.showPicker === "function") {
-        const ret = inp.showPicker();
-        if (ret && typeof ret.then === "function") {
-          ret.then(afterPickerUi).catch(afterPickerUi);
-        }
-        /* If no Promise, rely on `change` + blur only — avoid blurring while UI is open. */
-      } else {
-        inp.focus();
-        inp.click();
-        window.setTimeout(afterPickerUi, 500);
-      }
-    } catch {
-      inp.focus();
-      window.setTimeout(afterPickerUi, 500);
-    }
-  }
-
-  /**
    * @param {string} prayerName
    */
   function updatePrayerTimeButtonLabel(prayerName) {
-    const btn = document.querySelector('[data-prayer-time-button="' + prayerName + '"]');
-    if (!btn) return;
+    const wrap = document.querySelector('[data-prayer-time-button="' + prayerName + '"]');
+    if (!wrap) return;
     let display = manualPrayerHm(prayerName) || "—";
     if (!manualPrayerHm(prayerName) && currentTimings) {
       const effective = timingsWithManualOverrides(currentTimings);
       const raw = timingRawForPrayer(effective, prayerName);
       display = cleanTime(typeof raw === "string" ? raw : "");
     }
-    const inner = btn.querySelector(".prayer-time__inner");
+    const inner = wrap.querySelector(".prayer-time__inner");
     if (inner) inner.textContent = display;
-    btn.setAttribute("aria-label", "Set " + prayerName + " alarm time, currently " + display);
+    const inp = wrap.querySelector('input[type="time"]');
+    if (inp) {
+      const key = toHmKey(display);
+      inp.value = key || "02:00";
+    }
+    wrap.setAttribute("aria-label", "Set " + prayerName + " alarm time, currently " + display);
+    if (inp) {
+      inp.setAttribute("aria-label", "Set " + prayerName + " alarm time, currently " + display);
+    }
   }
 
   function updateAllPrayerTimeButtonLabels() {
@@ -2669,6 +2680,12 @@
   /** After one silent unlock, scheduled `play()` is allowed by autoplay policy. */
   let adhanAutoplayUnlocked = false;
   let silentAutoplayUnlockInFlight = false;
+
+  /**
+   * Bumps when the user starts a new preview or cancels by pausing, so stale fetches
+   * cannot call `play()` after a newer click.
+   */
+  let adhanPreviewPlayGeneration = 0;
 
   const adhanAudio = new Audio();
   adhanAudio.preload = "auto";
@@ -3211,16 +3228,40 @@
         showPrayerView(name);
       });
 
-      const timeBtn = document.createElement("button");
-      timeBtn.type = "button";
-      timeBtn.className = "prayer-time prayer-time--editable";
-      timeBtn.setAttribute("data-prayer-time-button", name);
-      timeBtn.setAttribute("aria-label", "Set " + name + " alarm time, currently " + displayHm);
+      const timeWrap = document.createElement("div");
+      timeWrap.className = "prayer-time prayer-time--editable";
+      timeWrap.setAttribute("data-prayer-time-button", name);
+      timeWrap.setAttribute(
+        "aria-label",
+        "Set " + name + " alarm time, currently " + displayHm
+      );
       const timeInner = document.createElement("span");
       timeInner.className = "prayer-time__inner";
       timeInner.textContent = displayHm;
-      timeBtn.appendChild(timeInner);
-      timeCol.appendChild(timeBtn);
+      timeInner.setAttribute("aria-hidden", "true");
+      const timeInp = document.createElement("input");
+      timeInp.type = "time";
+      timeInp.step = "60";
+      timeInp.className = "prayer-time-input-native";
+      timeInp.value = toHmKey(displayHm) || "02:00";
+      timeInp.setAttribute(
+        "aria-label",
+        "Set " + name + " alarm time, currently " + displayHm
+      );
+      timeInp.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+      });
+      timeInp.addEventListener("change", function () {
+        if (!timeInp.value) return;
+        saveManualPrayerHm(name, timeInp.value);
+        savePrayerTimeOverrides();
+        updateAllPrayerTimeButtonLabels();
+        updatePrayerRowsNextHighlight();
+        blurPrayerTimeInputEl(timeInp);
+      });
+      timeWrap.appendChild(timeInner);
+      timeWrap.appendChild(timeInp);
+      timeCol.appendChild(timeWrap);
 
       hitWrap.appendChild(mainHit);
       hitWrap.appendChild(timeCol);
@@ -3351,41 +3392,66 @@
 
   function onPreviewAdhanClick() {
     hideAudioError();
-    whenAdhanCanPlay()
-      .then(function () {
-        if (adhanAudio.paused) {
-          return adhanAudio.play();
-        }
+
+    const wasPaused = adhanAudio.paused;
+
+    const unlockRet = adhanAudio.play();
+    if (unlockRet != null && typeof unlockRet.catch === "function") {
+      unlockRet.catch((e) => console.warn("Unlock handled", e));
+    }
+
+    if (!wasPaused) {
+      try {
+        adhanPreviewPlayGeneration += 1;
         adhanAudio.pause();
-      })
-      .catch(function (err) {
+        adhanAudio.currentTime = 0;
+        syncPreviewButtonUi();
+      } catch (error) {
+        console.error("Athan Play Error:", error);
+      }
+      return;
+    }
+
+    adhanPreviewPlayGeneration += 1;
+    const gen = adhanPreviewPlayGeneration;
+
+    (async function adhanPreviewFetchAndPlay() {
+      try {
+        const res = await fetch(ADHAN_MP3_URL, { mode: "cors", cache: "force-cache" });
+        if (gen !== adhanPreviewPlayGeneration) return;
+        if (!res.ok) {
+          throw new Error("Adhan fetch failed with status " + res.status);
+        }
+        const audioUrl = res.url || ADHAN_MP3_URL;
+
+        adhanAudio.pause();
+        adhanAudio.currentTime = 0;
+        adhanAudio.src = audioUrl;
+
+        const playRet = adhanAudio.play();
+        if (playRet != null && typeof playRet.then === "function") {
+          await playRet;
+        }
+        if (gen === adhanPreviewPlayGeneration) {
+          hideAudioError();
+        }
+      } catch (error) {
+        console.error("Athan Play Error:", error);
+        if (gen !== adhanPreviewPlayGeneration) return;
         let msg = "Audio failed to load or play.";
-        if (err && err.name === "NotAllowedError") {
+        if (error && error.name === "NotAllowedError") {
           msg = "Tap any button or prayer switch once to allow sound, then try again.";
-        } else if (err && err.message) {
-          msg = err.message;
+        } else if (error && error.message) {
+          msg = error.message;
         }
         showAudioError(msg);
-      });
+      }
+    })();
   }
 
   adhanAudio.addEventListener("play", syncPreviewButtonUi);
   adhanAudio.addEventListener("pause", syncPreviewButtonUi);
   adhanAudio.addEventListener("ended", syncPreviewButtonUi);
-
-  if (els.prayerList) {
-    els.prayerList.addEventListener("click", function (ev) {
-      const t = ev.target && ev.target.closest
-        ? ev.target.closest("[data-prayer-time-button]")
-        : null;
-      if (!t) return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      const prayerName = t.getAttribute("data-prayer-time-button");
-      if (!prayerName) return;
-      openPrayerTimePicker(prayerName);
-    });
-  }
 
   els.btnRequest.addEventListener("click", requestLocation);
   els.btnRetry.addEventListener("click", requestLocation);
