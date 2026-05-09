@@ -2614,44 +2614,11 @@
   let adhanAutoplayUnlocked = false;
   let silentAutoplayUnlockInFlight = false;
 
-  /** Created on first user gesture so `resume()` runs in-stack on iOS Safari. */
-  let adhanPreviewAudioContext = null;
-
   /**
-   * Tie audio output to the current user gesture before any `await` / network wait
-   * so iOS Safari does not block the later real `play()` after `canplay`.
+   * Bumps when the user starts a new preview or cancels by pausing, so stale fetches
+   * cannot call `play()` after a newer click.
    */
-  function primeAdhanPlaybackFromUserGesture() {
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (AC) {
-        if (!adhanPreviewAudioContext) adhanPreviewAudioContext = new AC();
-        if (adhanPreviewAudioContext.state === "suspended") {
-          void adhanPreviewAudioContext.resume();
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-    try {
-      adhanAudio.pause();
-      adhanAudio.currentTime = 0;
-      const p = adhanAudio.play();
-      if (p && typeof p.then === "function") {
-        p.then(function () {
-          adhanAudio.pause();
-          adhanAudio.currentTime = 0;
-        }).catch(function () {
-          /* not loaded yet — gesture still consumed for policy */
-        });
-      } else {
-        adhanAudio.pause();
-        adhanAudio.currentTime = 0;
-      }
-    } catch {
-      /* ignore */
-    }
-  }
+  let adhanPreviewPlayGeneration = 0;
 
   const adhanAudio = new Audio();
   adhanAudio.preload = "auto";
@@ -3358,25 +3325,61 @@
 
   function onPreviewAdhanClick() {
     hideAudioError();
-    if (adhanAudio.paused) {
-      primeAdhanPlaybackFromUserGesture();
+
+    const wasPaused = adhanAudio.paused;
+
+    const unlockRet = adhanAudio.play();
+    if (unlockRet != null && typeof unlockRet.catch === "function") {
+      unlockRet.catch((e) => console.warn("Unlock handled", e));
     }
-    whenAdhanCanPlay()
-      .then(function () {
-        if (adhanAudio.paused) {
-          return adhanAudio.play();
-        }
+
+    if (!wasPaused) {
+      try {
+        adhanPreviewPlayGeneration += 1;
         adhanAudio.pause();
-      })
-      .catch(function (err) {
+        adhanAudio.currentTime = 0;
+        syncPreviewButtonUi();
+      } catch (error) {
+        console.error("Athan Play Error:", error);
+      }
+      return;
+    }
+
+    adhanPreviewPlayGeneration += 1;
+    const gen = adhanPreviewPlayGeneration;
+
+    (async function adhanPreviewFetchAndPlay() {
+      try {
+        const res = await fetch(ADHAN_MP3_URL, { mode: "cors", cache: "force-cache" });
+        if (gen !== adhanPreviewPlayGeneration) return;
+        if (!res.ok) {
+          throw new Error("Adhan fetch failed with status " + res.status);
+        }
+        const audioUrl = res.url || ADHAN_MP3_URL;
+
+        adhanAudio.pause();
+        adhanAudio.currentTime = 0;
+        adhanAudio.src = audioUrl;
+
+        const playRet = adhanAudio.play();
+        if (playRet != null && typeof playRet.then === "function") {
+          await playRet;
+        }
+        if (gen === adhanPreviewPlayGeneration) {
+          hideAudioError();
+        }
+      } catch (error) {
+        console.error("Athan Play Error:", error);
+        if (gen !== adhanPreviewPlayGeneration) return;
         let msg = "Audio failed to load or play.";
-        if (err && err.name === "NotAllowedError") {
+        if (error && error.name === "NotAllowedError") {
           msg = "Tap any button or prayer switch once to allow sound, then try again.";
-        } else if (err && err.message) {
-          msg = err.message;
+        } else if (error && error.message) {
+          msg = error.message;
         }
         showAudioError(msg);
-      });
+      }
+    })();
   }
 
   adhanAudio.addEventListener("play", syncPreviewButtonUi);
