@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Masjid Ahlam</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Instrument+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+
+    <!-- Filled by app for API only; not shown -->
+    <p id="location-line" class="hidden" aria-hidden="true"></p>
+
+    <main class="shell">
+      <div id="home-view" class="home-view">
+        <header class="hero">
+          <p class="brand-title-ar" lang="ar" dir="rtl">مسجد أحلام</p>
+          <p class="brand-title-en">Masjid Ahlam</p>
+          <p id="date-line" class="hero-date"></p>
+        </header>
+
+        <section class="panel" aria-live="polite">
+        <div id="state-loading" class="state state--loading hidden">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Finding your position and loading prayer times…</p>
+        </div>
+
+        <div id="state-permission" class="state state--permission">
+          <p class="state-title">Location needed</p>
+          <p class="state-text">
+            Prayer times depend on where you are on Earth. Tap below to allow
+            location access for this session.
+          </p>
+          <button type="button" id="btn-request-location" class="btn btn-primary">
+            Allow location &amp; load times
+          </button>
+        </div>
+
+        <div id="state-error" class="state state--error hidden">
+          <p class="state-title">Something went wrong</p>
+          <p id="error-message" class="state-text"></p>
+          <button type="button" id="btn-retry" class="btn btn-secondary">
+            Try again
+          </button>
+        </div>
+
+        <div id="state-results" class="results hidden">
+          <div class="preview-toolbar">
+            <button
+              type="button"
+              id="btn-preview-adhan"
+              class="btn-preview-adhan play-button"
+              aria-pressed="false"
+              aria-label="Play Adhan preview by Mishary Rashid Alafasy"
+            >
+              <span class="btn-preview-adhan__icon play-button__icon" aria-hidden="true">▶</span>
+              <span class="btn-preview-adhan__label">Mishary Rashid Alafasy</span>
+            </button>
+          </div>
+          <p id="audio-error" class="audio-error hidden" role="alert"></p>
+
+          <ul id="prayer-list" class="prayer-list"></ul>
+        </div>
+      </section>
+      </div>
+
+      <div id="prayer-view" class="prayer-view hidden" aria-hidden="true">
+        <header class="prayer-view__header">
+          <button
+            type="button"
+            id="btn-prayer-back"
+            class="btn btn-back"
+            aria-label="Back"
+          >
+            <svg
+              class="btn-back__chevron"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M15 6.5L9 12l6 5.5"
+                stroke="currentColor"
+                stroke-width="2.25"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            id="btn-learning-mode-toggle"
+            class="btn btn-learning-mode"
+            aria-label="Learning mode"
+            aria-pressed="true"
+          >
+            <svg
+              class="btn-learning-mode__icon btn-learning-mode__icon--on"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path d="M4 10v4h3.2l4.6 4V6L7.2 10H4Z" fill="currentColor" />
+              <path
+                d="M15 9.4c.9.7 1.5 1.6 1.5 2.6 0 1-.6 1.9-1.5 2.6"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+              <path
+                d="M17.2 7.3c1.6 1.2 2.5 2.9 2.5 4.7 0 1.8-.9 3.5-2.5 4.7"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+            <svg
+              class="btn-learning-mode__icon btn-learning-mode__icon--off"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path d="M4 10v4h3.2l4.6 4V6L7.2 10H4Z" fill="currentColor" />
+              <path
+                d="M16.5 9.2 20.8 13.5m0-4.3-4.3 4.3"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span id="learning-mode-label" class="btn-learning-mode__label">Learning</span>
+          </button>
+        </header>
+        <div class="prayer-view__body">
+          <div class="prayer-view__title-block">
+            <div id="prayer-header" class="prayer-header">
+              <div class="prayer-view__title-group">
+                <p id="prayer-view-title-ar" class="brand-title-ar" lang="ar" dir="rtl">
+                  الفجر
+                </p>
+                <p id="prayer-view-title-en" class="brand-title-en">Fajr</p>
+              </div>
+            </div>
+          </div>
+
+          <div
+            id="fajr-recitation-display"
+            class="recitation-display fajr-recitation-display hidden"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <p id="recitation-ar" class="recitation-display__ar" lang="ar" dir="rtl"></p>
+            <p id="recitation-translit" class="recitation-display__translit"></p>
+            <p id="recitation-en" class="recitation-display__en"></p>
+          </div>
+
+          <div id="fajr-salah-panel" class="fajr-salah-panel fajr-salah-dock hidden">
+            <button
+              type="button"
+              id="btn-start-fajr-salah"
+              class="fajr-play-btn play-button play-button--circle"
+              aria-label="Start Fajr Salah"
+              aria-pressed="false"
+            >
+              <svg
+                class="fajr-play-btn__svg"
+                viewBox="0 0 64 64"
+                width="64"
+                height="64"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <circle class="fajr-play-btn__disc" cx="32" cy="32" r="28" />
+                <g class="fajr-play-btn__glyph--play">
+                  <path class="fajr-play-btn__triangle" d="M26 21v22l20-11-20-11z" />
+                </g>
+                <g class="fajr-play-btn__glyph--pause">
+                  <rect
+                    class="fajr-play-btn__pause-bar"
+                    x="21"
+                    y="19"
+                    width="7"
+                    height="26"
+                    rx="2"
+                  />
+                  <rect
+                    class="fajr-play-btn__pause-bar"
+                    x="36"
+                    y="19"
+                    width="7"
+                    height="26"
+                    rx="2"
+                  />
+                </g>
+              </svg>
+            </button>
+          </div>
+
+          <div
+            id="fajr-prayer-complete"
+            class="fajr-prayer-complete hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fajr-prayer-complete-title"
+            aria-hidden="true"
+          >
+            <div class="fajr-prayer-complete__card">
+              <p id="fajr-prayer-complete-title" class="fajr-prayer-complete__title">
+                Prayer complete
+              </p>
+              <p class="fajr-prayer-complete__hint">Alḥamdulillāh. Choose an option below.</p>
+              <div class="fajr-prayer-complete__actions">
+                <button type="button" id="btn-fajr-prayer-restart" class="btn btn-primary">
+                  Restart
+                </button>
+                <button type="button" id="btn-fajr-prayer-finish" class="btn btn-secondary">
+                  Finish
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
