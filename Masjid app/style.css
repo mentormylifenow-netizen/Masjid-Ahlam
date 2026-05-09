@@ -82,22 +82,39 @@ body {
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
+  -webkit-animation: prayerViewEnter 0.28s ease;
   animation: prayerViewEnter 0.28s ease;
+}
+
+@-webkit-keyframes prayerViewEnter {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(8px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
 }
 
 @keyframes prayerViewEnter {
   from {
     opacity: 0;
+    -webkit-transform: translateY(8px);
     transform: translateY(8px);
   }
   to {
     opacity: 1;
+    -webkit-transform: translateY(0);
     transform: translateY(0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .prayer-view {
+    -webkit-animation: none;
     animation: none;
   }
 
@@ -131,6 +148,7 @@ body {
     color 0.18s ease,
     border-color 0.18s ease,
     background 0.18s ease,
+    -webkit-transform 0.15s ease,
     transform 0.15s ease;
 }
 
@@ -151,6 +169,7 @@ body {
 }
 
 .btn-back:active {
+  -webkit-transform: scale(0.96);
   transform: scale(0.96);
 }
 
@@ -172,6 +191,7 @@ body {
     color 0.18s ease,
     border-color 0.18s ease,
     background 0.18s ease,
+    -webkit-transform 0.15s ease,
     transform 0.15s ease;
 }
 
@@ -187,6 +207,7 @@ body {
 }
 
 .btn-learning-mode:active {
+  -webkit-transform: scale(0.96);
   transform: scale(0.96);
 }
 
@@ -236,6 +257,7 @@ body {
   justify-content: center;
   padding: 1.25rem 1rem calc(2rem + env(safe-area-inset-bottom, 0px));
   background: rgba(6, 6, 10, 0.78);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 }
 
@@ -449,6 +471,7 @@ body {
   color: #050505;
   filter: drop-shadow(0 8px 22px var(--accent-glow));
   transition:
+    -webkit-transform 0.18s ease,
     transform 0.18s ease,
     filter 0.2s ease,
     opacity 0.2s ease;
@@ -505,11 +528,12 @@ body {
 
 /* Global play-button system (applies to current + future controls) */
 .play-button {
-  transition: transform 0.18s ease;
+  transition: -webkit-transform 0.18s ease, transform 0.18s ease;
 }
 
 .play-button:hover:not(:disabled),
 .play-button:active:not(:disabled) {
+  -webkit-transform: scale(1.05);
   transform: scale(1.05);
 }
 
@@ -608,10 +632,15 @@ body {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  transition:
+    -webkit-transform 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
 .btn:active {
+  -webkit-transform: scale(0.98);
   transform: scale(0.98);
 }
 
@@ -661,11 +690,20 @@ body {
   border: 3px solid var(--border-subtle);
   border-top-color: var(--accent);
   border-radius: 50%;
+  -webkit-animation: spin 0.75s linear infinite;
   animation: spin 0.75s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
   to {
+    -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
   }
 }
@@ -706,6 +744,7 @@ body {
   background: transparent;
   box-shadow: none;
   transition:
+    -webkit-transform 0.18s ease,
     transform 0.18s ease,
     border-color 0.18s ease,
     background 0.18s ease;
@@ -718,6 +757,7 @@ body {
 }
 
 .btn-preview-adhan:active {
+  -webkit-transform: scale(1.05);
   transform: scale(1.05);
 }
 
@@ -937,7 +977,8 @@ body {
   font: inherit;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: max(1.05rem, 16px);
+  -webkit-text-size-adjust: 100%;
   opacity: 0;
   cursor: pointer;
   z-index: 2;
@@ -991,6 +1032,7 @@ body {
   width: 3.05rem;
   height: 1.85rem;
   cursor: pointer;
+  -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
@@ -1025,7 +1067,9 @@ body {
   box-shadow:
     0 0.08rem 0.2rem rgba(0, 0, 0, 0.45),
     0 0.12rem 0.35rem rgba(0, 0, 0, 0.25);
-  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    -webkit-transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toggle__input:checked + .toggle__track {
@@ -1033,6 +1077,7 @@ body {
 }
 
 .toggle__input:checked + .toggle__track .toggle__thumb {
+  -webkit-transform: translateX(1.14rem);
   transform: translateX(1.14rem);
 }
 
@@ -1047,6 +1092,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .spinner {
+    -webkit-animation: none;
+    animation: none;
+  }
+
   .toggle__track,
   .toggle__thumb {
     transition: none;

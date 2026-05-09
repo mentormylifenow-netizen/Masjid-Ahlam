@@ -1747,6 +1747,11 @@
    */
   function createSalahSequenceRunner() {
     const audio = mainPlayer;
+    /** Loads the upcoming remote step in the background while `audio` plays the current one. */
+    const preloadAudio = new Audio();
+    preloadAudio.preload = "auto";
+    preloadAudio.muted = true;
+    preloadAudio.volume = 0;
     let silenceTimer = null;
     /** @type {'off' | 'silence' | 'audio' | 'postAudioSilence'} */
     let phase = "off";
@@ -1808,6 +1813,63 @@
     function resolveSrc(step) {
       if (step.audioUrl) return step.audioUrl;
       return null;
+    }
+
+    function clearPreloadAudio() {
+      try {
+        preloadAudio.pause();
+        preloadAudio.removeAttribute("src");
+        preloadAudio.load();
+      } catch {
+        /* ignore */
+      }
+    }
+
+    /**
+     * @param {string} a
+     * @param {string} b
+     * @returns {boolean}
+     */
+    function urlsRoughlyEqual(a, b) {
+      if (!a || !b) return false;
+      try {
+        return new URL(a, typeof location !== "undefined" ? location.href : undefined).href ===
+          new URL(b, typeof location !== "undefined" ? location.href : undefined).href;
+      } catch {
+        return a === b;
+      }
+    }
+
+    /**
+     * First upcoming HTTP(S) clip after index `fromIdx` (skips silence / traditional surah mutes).
+     * @param {number} fromIdx
+     * @returns {string | null}
+     */
+    function nextPlayableHttpSrc(fromIdx) {
+      for (let i = fromIdx; i < steps.length; i++) {
+        const st = steps[i];
+        if (st.silenceMs != null) continue;
+        if (st.isSurah && !isLearningMode) continue;
+        const s = resolveSrc(st);
+        if (s && /^https?:\/\//i.test(s)) return s;
+      }
+      return null;
+    }
+
+    function armNextTrackPreload() {
+      if (!active) return;
+      const nextSrc = nextPlayableHttpSrc(stepIndex + 1);
+      if (!nextSrc) {
+        clearPreloadAudio();
+        return;
+      }
+      try {
+        const already = preloadAudio.currentSrc || preloadAudio.src || "";
+        if (urlsRoughlyEqual(nextSrc, already)) return;
+        preloadAudio.src = nextSrc;
+      } catch {
+        /* ignore */
+      }
     }
 
     function armSilenceTimer() {
@@ -1889,6 +1951,7 @@
           finishOnce();
         });
       }
+      armNextTrackPreload();
     }
 
     function tick() {
@@ -1905,6 +1968,7 @@
         if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         detachAudioHandlers();
         audio.pause();
+        clearPreloadAudio();
         if (callbacks.onComplete) callbacks.onComplete();
         return;
       }
@@ -1923,6 +1987,7 @@
         phase = "silence";
         silenceRemainingMs = step.silenceMs;
         armSilenceTimer();
+        armNextTrackPreload();
         return;
       }
 
@@ -1931,6 +1996,7 @@
         silenceRemainingMs =
           step.muteDuration != null ? step.muteDuration : TRADITIONAL_SURAH_SILENCE_MS;
         armSilenceTimer();
+        armNextTrackPreload();
         return;
       }
 
@@ -2070,6 +2136,7 @@
         if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
         detachAudioHandlers();
         audio.pause();
+        clearPreloadAudio();
         try {
           audio.removeAttribute("src");
         } catch {
