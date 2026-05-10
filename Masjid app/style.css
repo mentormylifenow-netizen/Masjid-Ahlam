@@ -1729,6 +1729,20 @@ html[data-theme="light"] .badge-next {
   flex-shrink: 0;
 }
 
+.settings-reciter-select,
+.settings-athan-select {
+  max-width: min(100%, 12rem);
+  padding: 0.42rem 0.55rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  background: var(--settings-btn-ghost-bg);
+  border: 1px solid var(--settings-btn-ghost-border);
+  border-radius: var(--radius-sm);
+}
+
 .settings-row--nav {
   display: flex;
   align-items: center;

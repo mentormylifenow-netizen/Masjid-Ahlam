@@ -2,12 +2,36 @@
   "use strict";
 
   /**
-   * Mishary Rashid Alafasy — public MP3 from open-source project achaudhry/adhan
-   * (same file as in repo: Adhan-Mishary-Rashid-Al-Afasy.mp3).
-   * @see https://github.com/achaudhry/adhan
+   * Adhan preview & scheduled playback — distinct studio-style tracks.
+   * @see https://github.com/achaudhry/adhan (Mishary)
    */
-  const ADHAN_MP3_URL =
-    "https://raw.githubusercontent.com/achaudhry/adhan/master/Adhan-Mishary-Rashid-Al-Afasy.mp3";
+  const ATHAN_DATA = {
+    alafasy: {
+      name: "Mishary Rashid Alafasy",
+      url: "https://raw.githubusercontent.com/achaudhry/adhan/master/Adhan-Mishary-Rashid-Al-Afasy.mp3",
+    },
+    yusuf: {
+      name: "Yusuf Islam",
+      url: "https://www.islamcan.com/audio/adhan/azan10.mp3",
+    },
+    mustafa: {
+      name: "Mustafa Ozcan",
+      url: "https://www.islamcan.com/audio/adhan/azan9.mp3",
+    },
+  };
+
+  const ATHAN_ID_STORAGE_KEY = "masjidAhlam.athanId";
+
+  let currentAthanId = "alafasy";
+  (function initAthanIdFromStorage() {
+    try {
+      const id = localStorage.getItem(ATHAN_ID_STORAGE_KEY);
+      if (id && ATHAN_DATA[id]) currentAthanId = id;
+    } catch {
+      /* private mode / quota */
+    }
+  })();
+
   /** Single global player for all prayer sequence recitations (local + remote). */
   const mainPlayer = new Audio();
 
@@ -48,9 +72,101 @@
   const TRADITIONAL_SURAH_SILENCE_MS = 4500;
   const DHUHR_OPENING_TAKBEER_AUDIO_SRC = "./allahu-akbar.mp3";
 
+  /**
+   * Master reciter map: Everyayah base for Al-Fātiḥah ayāt + Quran.com-style full-surah roots per reciter.
+   */
+  const RECITER_DATA = {
+    alafasy: {
+      name: "Mishary Rashid Alafasy",
+      fatiha: "https://everyayah.com/data/Alafasy_128kbps",
+      surah: "https://server8.mp3quran.net/afs",
+    },
+    basit: {
+      name: "Abdul Basit (Murattal)",
+      fatiha: "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps",
+      surah: "https://server7.mp3quran.net/basit",
+    },
+    ghamdi: {
+      name: "Saad Al Ghamdi",
+      fatiha: "https://everyayah.com/data/Ghamadi_40kbps",
+      surah: "https://server7.mp3quran.net/s_gmd",
+    },
+    shatri: {
+      name: "Abu Bakr Al Shatri",
+      fatiha: "https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps",
+      surah: "https://server11.mp3quran.net/shatri",
+    },
+    husary: {
+      name: "Mahmoud Khalil Al Husary",
+      fatiha: "https://everyayah.com/data/Husary_128kbps",
+      surah: "https://server13.mp3quran.net/husr",
+    },
+    maher: {
+      name: "Maher Al Muaiqly",
+      fatiha: "https://everyayah.com/data/MaherAlMuaiqly128kbps",
+      surah: "https://server12.mp3quran.net/maher",
+    },
+    sudais: {
+      name: "Abdur-Rahman As-Sudais",
+      fatiha: "https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps",
+      surah: "https://server11.mp3quran.net/sds",
+    },
+    shuraim: {
+      name: "Saud Al-Shuraim",
+      fatiha: "https://everyayah.com/data/Saood_ash-Shuraym_128kbps",
+      surah: "https://server7.mp3quran.net/shur",
+    },
+    yasser: {
+      name: "Yasser Al-Dosari",
+      fatiha: "https://everyayah.com/data/Yasser_Ad-Dussary_128kbps",
+      surah: "https://server11.mp3quran.net/yasser",
+    },
+    basfar: {
+      name: "Abdullah Basfar",
+      fatiha: "https://everyayah.com/data/Abdullah_Basfar_192kbps",
+      surah: "https://server6.mp3quran.net/bsfr",
+    },
+    fares: {
+      name: "Fares Abbad",
+      fatiha: "https://everyayah.com/data/Fares_Abbad_64kbps",
+      surah: "https://server8.mp3quran.net/frs_a",
+    },
+    ayyub: {
+      name: "Muhammad Ayyub",
+      fatiha: "https://everyayah.com/data/Muhammad_Ayyoub_128kbps",
+      surah: "https://server8.mp3quran.net/ayyub",
+    },
+    qatami: {
+      name: "Nasser Al Qatami",
+      fatiha: "https://everyayah.com/data/Nasser_Alqatami_128kbps",
+      surah: "https://server6.mp3quran.net/qtm",
+    },
+    bukhatir: {
+      name: "Salah Bukhatir",
+      fatiha: "https://everyayah.com/data/Salah_Bukhatir_128kbps",
+      surah: "https://server8.mp3quran.net/s_bud",
+    },
+    jaber: {
+      name: "Ali Jaber",
+      fatiha: "https://everyayah.com/data/Ali_Jaber_64kbps",
+      surah: "https://server11.mp3quran.net/a_jbr",
+    },
+  };
+
+  const RECITER_ID_STORAGE_KEY = "masjidAhlam.reciterId";
+
+  let currentReciterId = "alafasy";
+  (function initReciterIdFromStorage() {
+    try {
+      const id = localStorage.getItem(RECITER_ID_STORAGE_KEY);
+      if (id && RECITER_DATA[id]) currentReciterId = id;
+    } catch {
+      /* private mode / quota */
+    }
+  })();
+
   /** Mishary Rashid Al-Afasy 128kbps — filename pattern `SSSVVV.mp3` (e.g. 001003 = Surah 1 Ayah 3). */
-  const EVERYAYAH_ALAFASY_128_BASE =
-    "https://everyayah.com/data/Alafasy_128kbps";
+  let currentReciterBaseUrl = RECITER_DATA[currentReciterId].fatiha.replace(/\/$/, "");
 
   /**
    * Surah Al-Fatiha — seven ayāt including Bismillah; each step has its own `audioUrl`.
@@ -62,42 +178,42 @@
       transliteration: "Bismillaahir Rahmaanir Raheem",
       english: "In the name of Allah, the Most Gracious, the Most Merciful",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001001.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001001.mp3`,
     },
     {
       arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
       transliteration: "Alhamdu lillaahi Rabbil 'Aalameen",
       english: "All praise is due to Allah, Lord of all the worlds",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001002.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001002.mp3`,
     },
     {
       arabic: "الرَّحْمَٰنِ الرَّحِيمِ",
       transliteration: "Ar-Rahmaanir-Raheem",
       english: "The Most Gracious, the Most Merciful",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001003.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001003.mp3`,
     },
     {
       arabic: "مَالِكِ يَوْمِ الدِّينِ",
       transliteration: "Maaliki Yawmid-Deen",
       english: "Master of the Day of Judgment",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001004.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001004.mp3`,
     },
     {
       arabic: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
       transliteration: "Iyyaaka na'budu wa iyyaaka nasta'een",
       english: "You alone we worship, and You alone we ask for help",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001005.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001005.mp3`,
     },
     {
       arabic: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
       transliteration: "Ihdinas-Siraatal-Mustaqeem",
       english: "Guide us to the straight path",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001006.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001006.mp3`,
     },
     {
       arabic:
@@ -107,7 +223,7 @@
       english:
         "The path of those You have favored—not those who earned anger, nor those who go astray",
       isSurah: true,
-      audioUrl: `${EVERYAYAH_ALAFASY_128_BASE}/001007.mp3`,
+      audioUrl: `${currentReciterBaseUrl}/001007.mp3`,
     },
   ];
 
@@ -1252,6 +1368,35 @@
     },
   ];
 
+  /**
+   * Keeps Al-Fātiḥah everyayah URLs aligned with {@link currentReciterBaseUrl}
+   * (canonical steps plus shallow copies embedded in Dhuhr sequences).
+   */
+  function applyCurrentReciterToEveryayahFatihaUrls() {
+    const base = currentReciterBaseUrl.replace(/\/$/, "");
+    const names = [
+      "001001.mp3",
+      "001002.mp3",
+      "001003.mp3",
+      "001004.mp3",
+      "001005.mp3",
+      "001006.mp3",
+      "001007.mp3",
+    ];
+    FATIHA_AYAH_STEPS.forEach(function (step, i) {
+      if (names[i]) step.audioUrl = base + "/" + names[i];
+    });
+    [DHUHR_RAKAT1_SEQUENCE_HEAD, DHUHR_RAKAT1_SEQUENCE_TAIL, DHUHR_RAKAT2_POST_SURAH_STEPS].forEach(
+      function (sequence) {
+        sequence.forEach(function (step) {
+          if (!step || !step.audioUrl) return;
+          const m = step.audioUrl.match(/\/(00100[1-7]\.mp3)$/);
+          if (m) step.audioUrl = base + "/" + m[1];
+        });
+      }
+    );
+  }
+
   /** Dhuhr randomized 2nd-rakat title-only surah cards (full-surah audio on each card). */
   const dhuhrSurahs = [
     {
@@ -1679,6 +1824,40 @@
       audioUrl: "https://server8.mp3quran.net/afs/114.mp3",
     },
   ];
+
+  /**
+   * Applies selected reciter: Everyayah Al-Fātiḥah URLs + full-surah MP3 roots across all banks.
+   * @param {string} reciterId key of {@link RECITER_DATA}
+   */
+  function applyReciter(reciterId) {
+    const entry = RECITER_DATA[reciterId];
+    if (!entry) return;
+    currentReciterId = reciterId;
+    currentReciterBaseUrl = entry.fatiha.replace(/\/$/, "");
+    applyCurrentReciterToEveryayahFatihaUrls();
+    const surahBase = entry.surah.replace(/\/$/, "");
+    const fullSurahStepArrays = [
+      rakat1SurahBank,
+      rakat2SurahBank,
+      tahajjudSurahsRakat1,
+      tahajjudSurahsRakat2,
+      dhuhrRakat1SurahBank,
+      dhuhrSurahs,
+      asrSurahsRakat1,
+      asrSurahsRakat2,
+      ishaSurahsRakat1,
+      ishaSurahsRakat2,
+      maghribSurahsRakat1,
+      maghribSurahsRakat2,
+    ];
+    fullSurahStepArrays.forEach(function (arr) {
+      arr.forEach(function (step) {
+        if (!step || !step.audioUrl) return;
+        const m = step.audioUrl.match(/\/(\d{3}\.mp3)$/);
+        if (m) step.audioUrl = surahBase + "/" + m[1];
+      });
+    });
+  }
 
   /**
    * Maghrib (3 rakʿahs): splices Dhuhr — Rakaʿt 1–2 identical; Rakaʿt 3 is Fatiha + rukū + floor only, then final sitting (no 4th rakat).
@@ -2553,6 +2732,7 @@
     } else {
       root.removeAttribute("data-theme");
     }
+    document.body.classList.toggle("day-mode", theme === "light");
     const toggle = document.getElementById("settings-theme-toggle");
     if (toggle) {
       toggle.checked = theme === "dark";
@@ -2879,7 +3059,28 @@
 
   const adhanAudio = new Audio();
   adhanAudio.preload = "auto";
-  adhanAudio.src = ADHAN_MP3_URL;
+  adhanAudio.src = ATHAN_DATA[currentAthanId].url;
+
+  /**
+   * @param {string} athanId key of {@link ATHAN_DATA}
+   */
+  function applyAthan(athanId) {
+    const entry = ATHAN_DATA[athanId];
+    if (!entry) return;
+    currentAthanId = athanId;
+    try {
+      adhanAudio.pause();
+      adhanAudio.currentTime = 0;
+    } catch {
+      /* ignore */
+    }
+    adhanAudio.src = entry.url;
+    if (els.btnPreviewAdhan) {
+      const labelEl = els.btnPreviewAdhan.querySelector(".btn-preview-adhan__label");
+      if (labelEl) labelEl.textContent = entry.name;
+    }
+    syncPreviewButtonUi();
+  }
 
   function hideAudioError() {
     if (!els.audioError) return;
@@ -3250,11 +3451,12 @@
     if (icon) {
       icon.textContent = playing ? "⏸" : "▶";
     }
+    const athanName = ATHAN_DATA[currentAthanId]
+      ? ATHAN_DATA[currentAthanId].name
+      : "Adhan";
     els.btnPreviewAdhan.setAttribute(
       "aria-label",
-      playing
-        ? "Pause Adhan preview by Mishary Rashid Alafasy"
-        : "Play Adhan preview by Mishary Rashid Alafasy"
+      playing ? "Pause Adhan preview — " + athanName : "Play Adhan preview — " + athanName
     );
   }
 
@@ -3605,18 +3807,17 @@
     adhanPreviewPlayGeneration += 1;
     const gen = adhanPreviewPlayGeneration;
 
-    (async function adhanPreviewFetchAndPlay() {
+    (async function adhanPreviewLoadAndPlay() {
       try {
-        const res = await fetch(ADHAN_MP3_URL, { mode: "cors", cache: "force-cache" });
-        if (gen !== adhanPreviewPlayGeneration) return;
-        if (!res.ok) {
-          throw new Error("Adhan fetch failed with status " + res.status);
-        }
-        const audioUrl = res.url || ADHAN_MP3_URL;
+        const entry = ATHAN_DATA[currentAthanId];
+        const athanUrl = entry ? entry.url : adhanAudio.src;
 
         adhanAudio.pause();
         adhanAudio.currentTime = 0;
-        adhanAudio.src = audioUrl;
+        adhanAudio.src = athanUrl;
+
+        await whenAdhanCanPlay();
+        if (gen !== adhanPreviewPlayGeneration) return;
 
         const playRet = adhanAudio.play();
         if (playRet != null && typeof playRet.then === "function") {
@@ -3639,7 +3840,10 @@
     })();
   }
 
-  adhanAudio.addEventListener("play", syncPreviewButtonUi);
+  adhanAudio.addEventListener("play", function () {
+    hideAudioError();
+    syncPreviewButtonUi();
+  });
   adhanAudio.addEventListener("pause", syncPreviewButtonUi);
   adhanAudio.addEventListener("ended", syncPreviewButtonUi);
 
@@ -3738,6 +3942,77 @@
   syncPreviewButtonUi();
   syncFajrTransportUi();
   syncLearningModeUi();
+
+  (function initSettingsReciterSelect() {
+    const sel = document.getElementById("settings-reciter-select");
+    try {
+      const stored = localStorage.getItem(RECITER_ID_STORAGE_KEY);
+      if (stored && RECITER_DATA[stored]) currentReciterId = stored;
+    } catch {
+      /* ignore */
+    }
+    if (!RECITER_DATA[currentReciterId]) currentReciterId = "alafasy";
+    if (sel) {
+      sel.replaceChildren();
+      Object.keys(RECITER_DATA).forEach(function (id) {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = RECITER_DATA[id].name;
+        sel.appendChild(opt);
+      });
+      sel.value = currentReciterId;
+    }
+    applyReciter(currentReciterId);
+    if (!sel) return;
+    sel.addEventListener("change", function () {
+      const id = sel.value;
+      if (!RECITER_DATA[id]) return;
+      applyReciter(id);
+      try {
+        localStorage.setItem(RECITER_ID_STORAGE_KEY, id);
+      } catch {
+        /* ignore */
+      }
+    });
+  })();
+
+  (function initSettingsAthanSelect() {
+    const sel = document.getElementById("settings-athan-select");
+    try {
+      const stored = localStorage.getItem(ATHAN_ID_STORAGE_KEY);
+      if (stored && ATHAN_DATA[stored]) {
+        currentAthanId = stored;
+      } else if (stored) {
+        currentAthanId = "alafasy";
+        localStorage.setItem(ATHAN_ID_STORAGE_KEY, "alafasy");
+      }
+    } catch {
+      /* ignore */
+    }
+    if (!ATHAN_DATA[currentAthanId]) currentAthanId = "alafasy";
+    if (sel) {
+      sel.replaceChildren();
+      Object.keys(ATHAN_DATA).forEach(function (id) {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = ATHAN_DATA[id].name;
+        sel.appendChild(opt);
+      });
+      sel.value = currentAthanId;
+    }
+    applyAthan(currentAthanId);
+    if (!sel) return;
+    sel.addEventListener("change", function () {
+      const id = sel.value;
+      if (!ATHAN_DATA[id]) return;
+      applyAthan(id);
+      try {
+        localStorage.setItem(ATHAN_ID_STORAGE_KEY, id);
+      } catch {
+        /* ignore */
+      }
+    });
+  })();
 
   requestLocation();
   window.setInterval(checkPrayerAlarms, 1000);

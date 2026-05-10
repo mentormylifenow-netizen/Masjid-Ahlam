@@ -333,31 +333,29 @@
           <section class="settings-card" aria-labelledby="settings-block-audio">
             <h2 id="settings-block-audio" class="settings-card__title">Audio &amp; Recitation</h2>
             <div class="settings-card__body">
-              <button
-                type="button"
-                class="settings-row settings-row--nav"
-                disabled
-                aria-label="Default Reciter (coming soon)"
-              >
-                <span class="settings-row__label">Default Reciter</span>
-                <span class="settings-row__value">Mishary Rashid Alafasy</span>
-                <svg class="settings-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
+              <div class="settings-row settings-row--split">
+                <div class="settings-row__text">
+                  <span class="settings-row__label">Default Reciter</span>
+                  <span class="settings-row__hint">Fātiḥah + full surah</span>
+                </div>
+                <select
+                  id="settings-reciter-select"
+                  class="settings-reciter-select settings-row__control"
+                  aria-label="Default reciter for Qur’an playback"
+                ></select>
+              </div>
               <div class="settings-divider" aria-hidden="true"></div>
-              <button
-                type="button"
-                class="settings-row settings-row--nav"
-                disabled
-                aria-label="Athan Style (coming soon)"
-              >
-                <span class="settings-row__label">Athan Style</span>
-                <span class="settings-row__value">Default</span>
-                <svg class="settings-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
+              <div class="settings-row settings-row--split">
+                <div class="settings-row__text">
+                  <span class="settings-row__label">Athan Reciter</span>
+                  <span class="settings-row__hint">Preview &amp; prayer alarms</span>
+                </div>
+                <select
+                  id="settings-athan-select"
+                  class="settings-athan-select settings-row__control"
+                  aria-label="Athan reciter for preview and scheduled alarms"
+                ></select>
+              </div>
             </div>
           </section>
 
