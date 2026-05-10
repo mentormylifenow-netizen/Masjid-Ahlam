@@ -24,6 +24,13 @@
     <p id="location-line" class="hidden" aria-hidden="true"></p>
 
     <main class="shell">
+      <div id="view-quran" class="app-view" aria-hidden="true">
+        <div class="app-view__placeholder">
+          <p class="app-view__placeholder-title">Quran Library Coming Soon</p>
+        </div>
+      </div>
+
+      <div id="view-home" class="app-view app-view--home active" aria-hidden="false">
       <div id="home-view" class="home-view">
         <header class="hero">
           <p class="brand-title-ar" lang="ar" dir="rtl">مسجد أحلام</p>
@@ -243,7 +250,239 @@
           </div>
         </div>
       </div>
+      </div>
+
+      <div id="view-calendar" class="app-view" aria-hidden="true">
+        <div class="app-view__placeholder">
+          <p class="app-view__placeholder-title">Calendar Coming Soon</p>
+        </div>
+      </div>
+
+      <div id="view-qibla" class="app-view" aria-hidden="true">
+        <div class="app-view__placeholder app-view__placeholder--qibla">
+          <div class="app-view__qibla-graphic" aria-hidden="true">
+            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="28" cy="28" r="24" stroke="rgba(227, 207, 130, 0.38)" stroke-width="1.5"/>
+              <circle cx="28" cy="28" r="18" stroke="rgba(227, 207, 130, 0.22)" stroke-width="1"/>
+              <path
+                d="M28 10 L31.5 28 L28 46 L24.5 28 Z"
+                fill="rgba(227, 207, 130, 0.28)"
+                stroke="#e3cf82"
+                stroke-width="1.25"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M28 15 L30 28 L28 41 L26 28 Z"
+                fill="rgba(201, 164, 76, 0.4)"
+                stroke="#c9a44c"
+                stroke-width="1"
+                stroke-linejoin="round"
+              />
+              <circle cx="28" cy="28" r="3.25" fill="#000000" stroke="#e3cf82" stroke-width="1.25"/>
+            </svg>
+          </div>
+          <p class="app-view__placeholder-title">Qibla Finder</p>
+          <p class="app-view__placeholder-sub">Coming Soon</p>
+        </div>
+      </div>
+
+      <div id="view-settings" class="app-view" aria-hidden="true">
+        <div class="settings-view">
+          <header class="settings-view__header">
+            <h1 class="settings-view__title">Settings</h1>
+            <p class="settings-view__subtitle">Customize Masjid Ahlam</p>
+          </header>
+
+          <section class="settings-card" aria-labelledby="settings-block-appearance">
+            <h2 id="settings-block-appearance" class="settings-card__title">Appearance</h2>
+            <div class="settings-card__body">
+              <div class="settings-row settings-row--split">
+                <div class="settings-row__text">
+                  <span class="settings-row__label">Theme</span>
+                  <span class="settings-row__hint">Day / Night</span>
+                </div>
+                <label class="toggle settings-row__control" for="settings-theme-toggle">
+                  <input
+                    id="settings-theme-toggle"
+                    type="checkbox"
+                    class="toggle__input"
+                    checked
+                    aria-label="Night mode — on uses dark theme, off uses day theme"
+                  />
+                  <span class="toggle__track">
+                    <span class="toggle__thumb" aria-hidden="true"></span>
+                  </span>
+                </label>
+              </div>
+              <div class="settings-divider" aria-hidden="true"></div>
+              <button
+                type="button"
+                class="settings-row settings-row--nav"
+                disabled
+                aria-label="Display Language (coming soon)"
+              >
+                <span class="settings-row__label">Display Language</span>
+                <span class="settings-row__value">English</span>
+                <svg class="settings-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settings-block-audio">
+            <h2 id="settings-block-audio" class="settings-card__title">Audio &amp; Recitation</h2>
+            <div class="settings-card__body">
+              <button
+                type="button"
+                class="settings-row settings-row--nav"
+                disabled
+                aria-label="Default Reciter (coming soon)"
+              >
+                <span class="settings-row__label">Default Reciter</span>
+                <span class="settings-row__value">Mishary Rashid Alafasy</span>
+                <svg class="settings-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="settings-divider" aria-hidden="true"></div>
+              <button
+                type="button"
+                class="settings-row settings-row--nav"
+                disabled
+                aria-label="Athan Style (coming soon)"
+              >
+                <span class="settings-row__label">Athan Style</span>
+                <span class="settings-row__value">Default</span>
+                <svg class="settings-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settings-block-prayer">
+            <h2 id="settings-block-prayer" class="settings-card__title">Prayer Engine</h2>
+            <div class="settings-card__body">
+              <button
+                type="button"
+                class="settings-row settings-row--nav"
+                disabled
+                aria-label="Calculation Method (coming soon)"
+              >
+                <span class="settings-row__label">Calculation Method</span>
+                <span class="settings-row__value">ISNA</span>
+                <svg class="settings-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div class="settings-divider" aria-hidden="true"></div>
+              <div class="settings-row settings-row--split">
+                <div class="settings-row__text">
+                  <span class="settings-row__label">Location Mode</span>
+                  <span class="settings-row__hint">Auto-detect GPS</span>
+                </div>
+                <label class="toggle settings-row__control" aria-label="Auto-detect location (placeholder)">
+                  <input type="checkbox" class="toggle__input" checked disabled />
+                  <span class="toggle__track">
+                    <span class="toggle__thumb" aria-hidden="true"></span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="settings-card settings-card--premium" aria-labelledby="settings-block-account">
+            <div class="settings-card__badge" aria-hidden="true">Premium</div>
+            <h2 id="settings-block-account" class="settings-card__title">Account</h2>
+            <div class="settings-card__body">
+              <button type="button" class="settings-btn settings-btn--primary" disabled>
+                Login / Create Account
+              </button>
+              <button type="button" class="settings-btn settings-btn--premium" disabled>
+                Upgrade to Premium
+              </button>
+              <button type="button" class="settings-btn settings-btn--ghost" disabled>
+                Send Feedback
+              </button>
+            </div>
+          </section>
+        </div>
+      </div>
     </main>
+
+    <nav id="bottom-nav" class="bottom-nav" aria-label="Primary navigation">
+      <button
+        type="button"
+        class="bottom-nav__btn"
+        data-nav-tab="quran"
+        aria-label="Quran"
+      >
+        <svg class="bottom-nav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M6 3h5a4 4 0 0 1 4 4v14l-3-2-3 2V7a2 2 0 0 0-2-2H6V3Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+          <path d="M13 5h5v14l-2.5-1.67L13 19V5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+        </svg>
+        <span class="bottom-nav__label">Quran</span>
+      </button>
+      <button
+        type="button"
+        class="bottom-nav__btn"
+        data-nav-tab="calendar"
+        aria-label="Calendar"
+      >
+        <svg class="bottom-nav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M16 3v4M8 3v4M3 11h18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+        </svg>
+        <span class="bottom-nav__label">Calendar</span>
+      </button>
+      <button
+        type="button"
+        class="bottom-nav__btn bottom-nav__btn--home bottom-nav__btn--active"
+        data-nav-tab="home"
+        aria-label="Home"
+        aria-current="page"
+      >
+        <svg class="bottom-nav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+        </svg>
+        <span class="bottom-nav__label">Home</span>
+      </button>
+      <button
+        type="button"
+        class="bottom-nav__btn"
+        data-nav-tab="qibla"
+        aria-label="Qibla"
+      >
+        <svg class="bottom-nav__icon bottom-nav__icon--compass" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.65"/>
+          <circle cx="12" cy="12" r="6.25" stroke="currentColor" stroke-width="1" opacity="0.38"/>
+          <path
+            d="M12 4l1.35 8L12 20l-1.35-8L12 4Z"
+            fill="currentColor"
+            fill-opacity="0.22"
+            stroke="currentColor"
+            stroke-width="1.15"
+            stroke-linejoin="round"
+          />
+          <path d="M12 8l.85 4L12 16l-.85-4L12 8Z" fill="currentColor" fill-opacity="0.42"/>
+          <circle cx="12" cy="12" r="2" fill="currentColor"/>
+        </svg>
+        <span class="bottom-nav__label">Qibla</span>
+      </button>
+      <button
+        type="button"
+        class="bottom-nav__btn"
+        data-nav-tab="settings"
+        aria-label="Settings"
+      >
+        <svg class="bottom-nav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.75"/>
+          <path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32L19.07 4.93" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span class="bottom-nav__label">Settings</span>
+      </button>
+    </nav>
 
     <script src="app.js"></script>
   </body>

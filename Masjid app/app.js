@@ -493,6 +493,14 @@
    */
   const tahajjudSurahsRakat1 = [
     {
+      arabic: "سورة القيامة",
+      transliteration: "Surah Al-Qiyamah",
+      english: "The Resurrection",
+      isSurah: true,
+      muteDuration: 15000,
+      audioUrl: "https://server8.mp3quran.net/afs/075.mp3",
+    },
+    {
       arabic: "سورة المزمل",
       transliteration: "Surah Al-Muzzammil",
       english: "The Enshrouded One",
@@ -501,76 +509,68 @@
       audioUrl: "https://server8.mp3quran.net/afs/073.mp3",
     },
     {
-      arabic: "سورة الرحمن",
-      transliteration: "Surah Ar-Rahman",
-      english: "The Most Gracious",
+      arabic: "سورة النبأ",
+      transliteration: "Surah An-Naba",
+      english: "The Announcement",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/055.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/078.mp3",
     },
     {
-      arabic: "سورة يس",
-      transliteration: "Surah Yaseen",
-      english: "Ya-Sin",
+      arabic: "سورة النازعات",
+      transliteration: "Surah An-Nazi'at",
+      english: "Those Who Drag Forth",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/036.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/079.mp3",
     },
     {
-      arabic: "سورة مريم",
-      transliteration: "Surah Maryam",
-      english: "Mary",
+      arabic: "سورة الإنسان",
+      transliteration: "Surah Al-Insan",
+      english: "Man",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/019.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/076.mp3",
     },
     {
-      arabic: "سورة الملك",
-      transliteration: "Surah Al-Mulk",
-      english: "The Sovereignty",
+      arabic: "سورة الفجر",
+      transliteration: "Surah Al-Fajr",
+      english: "The Dawn",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/067.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/089.mp3",
     },
     {
-      arabic: "سورة الواقعة",
-      transliteration: "Surah Al-Waqi'ah",
-      english: "The Inevitable",
+      arabic: "سورة المرسلات",
+      transliteration: "Surah Al-Mursalat",
+      english: "The Emissaries",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/056.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/077.mp3",
     },
     {
-      arabic: "سورة يوسف",
-      transliteration: "Surah Yusuf",
-      english: "Joseph",
+      arabic: "سورة المطففين",
+      transliteration: "Surah Al-Mutaffifin",
+      english: "The Defrauding",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/012.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/083.mp3",
     },
     {
-      arabic: "سورة طه",
-      transliteration: "Surah Taha",
-      english: "Ta-Ha",
+      arabic: "سورة نوح",
+      transliteration: "Surah Nuh",
+      english: "Noah",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/020.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/071.mp3",
     },
     {
-      arabic: "سورة الكهف",
-      transliteration: "Surah Al-Kahf",
-      english: "The Cave",
+      arabic: "سورة الجن",
+      transliteration: "Surah Al-Jinn",
+      english: "The Jinn",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/018.mp3",
-    },
-    {
-      arabic: "سورة النور",
-      transliteration: "Surah An-Nur",
-      english: "The Light",
-      isSurah: true,
-      muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/024.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/072.mp3",
     },
   ];
 
@@ -587,28 +587,20 @@
       audioUrl: "https://server8.mp3quran.net/afs/032.mp3",
     },
     {
-      arabic: "سورة الإنسان",
-      transliteration: "Surah Al-Insan",
-      english: "Man",
+      arabic: "سورة المعارج",
+      transliteration: "Surah Al-Ma'arij",
+      english: "The Ascending Stairways",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/076.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/070.mp3",
     },
     {
-      arabic: "سورة لقمان",
-      transliteration: "Surah Luqman",
-      english: "Luqman",
+      arabic: "سورة الملك",
+      transliteration: "Surah Al-Mulk",
+      english: "The Sovereignty",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/031.mp3",
-    },
-    {
-      arabic: "سورة الزمر",
-      transliteration: "Surah Az-Zumar",
-      english: "The Troops",
-      isSurah: true,
-      muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/039.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/067.mp3",
     },
     {
       arabic: "سورة ق",
@@ -619,28 +611,12 @@
       audioUrl: "https://server8.mp3quran.net/afs/050.mp3",
     },
     {
-      arabic: "سورة الإسراء",
-      transliteration: "Surah Al-Isra",
-      english: "The Night Journey",
+      arabic: "سورة المدثر",
+      transliteration: "Surah Al-Muddathir",
+      english: "The Cloaked One",
       isSurah: true,
       muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/017.mp3",
-    },
-    {
-      arabic: "سورة الفرقان",
-      transliteration: "Surah Al-Furqan",
-      english: "The Criterion",
-      isSurah: true,
-      muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/025.mp3",
-    },
-    {
-      arabic: "سورة غافر",
-      transliteration: "Surah Ghafir",
-      english: "The Forgiver",
-      isSurah: true,
-      muteDuration: 15000,
-      audioUrl: "https://server8.mp3quran.net/afs/040.mp3",
+      audioUrl: "https://server8.mp3quran.net/afs/074.mp3",
     },
     {
       arabic: "سورة الدخان",
@@ -649,6 +625,30 @@
       isSurah: true,
       muteDuration: 15000,
       audioUrl: "https://server8.mp3quran.net/afs/044.mp3",
+    },
+    {
+      arabic: "سورة القلم",
+      transliteration: "Surah Al-Qalam",
+      english: "The Pen",
+      isSurah: true,
+      muteDuration: 15000,
+      audioUrl: "https://server8.mp3quran.net/afs/068.mp3",
+    },
+    {
+      arabic: "سورة النجم",
+      transliteration: "Surah An-Najm",
+      english: "The Star",
+      isSurah: true,
+      muteDuration: 15000,
+      audioUrl: "https://server8.mp3quran.net/afs/053.mp3",
+    },
+    {
+      arabic: "سورة الطور",
+      transliteration: "Surah At-Tur",
+      english: "The Mount",
+      isSurah: true,
+      muteDuration: 15000,
+      audioUrl: "https://server8.mp3quran.net/afs/052.mp3",
     },
     {
       arabic: "سورة الحشر",
@@ -1893,6 +1893,45 @@
     }
 
     /**
+     * Resolve after `canplay` / `canplaythrough` or when enough data is already buffered.
+     * @param {() => boolean} isAborted
+     * @returns {Promise<void>}
+     */
+    function waitForPlaybackReady(isAborted) {
+      return new Promise(function (resolve, reject) {
+        function cleanup() {
+          audio.removeEventListener("canplaythrough", onLayer);
+          audio.removeEventListener("canplay", onLayer);
+          audio.removeEventListener("error", onLoadErr);
+        }
+        function onLayer() {
+          if (isAborted()) {
+            cleanup();
+            reject(new Error("aborted"));
+            return;
+          }
+          cleanup();
+          resolve();
+        }
+        function onLoadErr() {
+          cleanup();
+          reject(audio.error || new Error("Media load error"));
+        }
+        if (isAborted()) {
+          reject(new Error("aborted"));
+          return;
+        }
+        if (audio.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) {
+          resolve();
+          return;
+        }
+        audio.addEventListener("canplaythrough", onLayer);
+        audio.addEventListener("canplay", onLayer);
+        audio.addEventListener("error", onLoadErr);
+      });
+    }
+
+    /**
      * @param {string|null} src
      * @param {() => void} onEnded
      * @param {number|undefined} clipDurationMs — stop after this many ms (takbīr clip from full MP3).
@@ -1909,7 +1948,6 @@
         return;
       }
       const isRemoteSrc = /^https?:\/\//i.test(src);
-      if (callbacks.onLoadingChange) callbacks.onLoadingChange(isRemoteSrc);
       let finished = false;
       function finishOnce() {
         if (finished) return;
@@ -1922,36 +1960,135 @@
       }
       clipAdvanceFn = finishOnce;
 
-      audio.src = src;
-      if (isRemoteSrc) {
-        audio.oncanplay = function () {
-          if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
-        };
-        audio.onplaying = function () {
-          if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
-        };
+      function shouldAbortLoadOrPlay() {
+        return finished || !active || paused;
       }
-      audio.onended = function () {
-        finishOnce();
-      };
-      audio.onerror = function () {
-        finishOnce();
-      };
-      if (clipDurationMs != null && clipDurationMs > 0) {
-        audioClipDeadline = Date.now() + clipDurationMs;
-        audioClipTimer = window.setTimeout(function () {
-          audioClipTimer = null;
-          audio.pause();
+
+      function attachPlaybackHandlers() {
+        audio.onended = function () {
           finishOnce();
-        }, clipDurationMs);
-      }
-      const p = audio.play();
-      if (p) {
-        p.catch(function () {
+        };
+        audio.onerror = function () {
           finishOnce();
-        });
+        };
       }
-      armNextTrackPreload();
+
+      if (!isRemoteSrc) {
+        if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+        audio.src = src;
+        attachPlaybackHandlers();
+        if (clipDurationMs != null && clipDurationMs > 0) {
+          audioClipDeadline = Date.now() + clipDurationMs;
+          audioClipTimer = window.setTimeout(function () {
+            audioClipTimer = null;
+            audio.pause();
+            finishOnce();
+          }, clipDurationMs);
+        }
+        const p = audio.play();
+        if (p) {
+          p.catch(function () {
+            finishOnce();
+          });
+        }
+        armNextTrackPreload();
+        return;
+      }
+
+      const MAX_REMOTE_AUDIO_ATTEMPTS = 3;
+      const RETRY_DELAY_MS = 1000;
+      const SLOW_LOAD_WARN_MS = 2000;
+
+      if (callbacks.onLoadingChange) callbacks.onLoadingChange(true);
+
+      async function runRemoteWithRetries() {
+        for (let attempt = 0; attempt < MAX_REMOTE_AUDIO_ATTEMPTS; attempt++) {
+          if (shouldAbortLoadOrPlay()) {
+            if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+            return;
+          }
+          try {
+            if (attempt > 0) {
+              await new Promise(function (resolve) {
+                window.setTimeout(resolve, RETRY_DELAY_MS);
+              });
+              if (shouldAbortLoadOrPlay()) {
+                if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+                return;
+              }
+            }
+
+            detachAudioHandlers();
+            clearAudioClipTimer();
+            audio.pause();
+            audio.src = src;
+            try {
+              audio.load();
+            } catch {
+              /* ignore */
+            }
+
+            const loadStartedAt = Date.now();
+            await waitForPlaybackReady(shouldAbortLoadOrPlay);
+            if (shouldAbortLoadOrPlay()) {
+              if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+              return;
+            }
+
+            const loadElapsedMs = Date.now() - loadStartedAt;
+            if (loadElapsedMs > SLOW_LOAD_WARN_MS) {
+              console.warn(
+                "Prayer sequence audio slow load (>2s):",
+                src,
+                "(" + loadElapsedMs + "ms)"
+              );
+            }
+
+            attachPlaybackHandlers();
+            if (clipDurationMs != null && clipDurationMs > 0) {
+              audioClipDeadline = Date.now() + clipDurationMs;
+              audioClipTimer = window.setTimeout(function () {
+                audioClipTimer = null;
+                audio.pause();
+                finishOnce();
+              }, clipDurationMs);
+            }
+
+            const playPromise = audio.play();
+            if (playPromise != null && typeof playPromise.then === "function") {
+              await playPromise;
+            }
+            if (shouldAbortLoadOrPlay()) {
+              if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+              return;
+            }
+            if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+            armNextTrackPreload();
+            return;
+          } catch (err) {
+            if (shouldAbortLoadOrPlay() || (err && err.message === "aborted")) {
+              if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+              return;
+            }
+            console.warn(
+              "Prayer sequence audio attempt " +
+                (attempt + 1) +
+                "/" +
+                MAX_REMOTE_AUDIO_ATTEMPTS +
+                " failed:",
+              src,
+              err
+            );
+            if (attempt === MAX_REMOTE_AUDIO_ATTEMPTS - 1) {
+              if (callbacks.onLoadingChange) callbacks.onLoadingChange(false);
+              finishOnce();
+              return;
+            }
+          }
+        }
+      }
+
+      void runRemoteWithRetries();
     }
 
     function tick() {
@@ -2390,6 +2527,59 @@
     btnFajrPrayerRestart: document.getElementById("btn-fajr-prayer-restart"),
     btnFajrPrayerFinish: document.getElementById("btn-fajr-prayer-finish"),
   };
+
+  const THEME_STORAGE_KEY = "masjidAhlam.theme";
+
+  /**
+   * @returns {"dark" | "light"}
+   */
+  function getStoredTheme() {
+    try {
+      const t = localStorage.getItem(THEME_STORAGE_KEY);
+      if (t === "light" || t === "dark") return t;
+    } catch {
+      /* private mode / quota */
+    }
+    return "dark";
+  }
+
+  /**
+   * @param {"dark" | "light"} theme
+   */
+  function applyTheme(theme) {
+    const root = document.documentElement;
+    if (theme === "light") {
+      root.setAttribute("data-theme", "light");
+    } else {
+      root.removeAttribute("data-theme");
+    }
+    const toggle = document.getElementById("settings-theme-toggle");
+    if (toggle) {
+      toggle.checked = theme === "dark";
+    }
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute("content", theme === "light" ? "#f4f7f5" : "#000000");
+    }
+  }
+
+  function initThemeControls() {
+    applyTheme(getStoredTheme());
+    const toggle = document.getElementById("settings-theme-toggle");
+    if (toggle) {
+      toggle.addEventListener("change", function () {
+        const next = toggle.checked ? "dark" : "light";
+        applyTheme(next);
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, next);
+        } catch {
+          /* ignore */
+        }
+      });
+    }
+  }
+
+  initThemeControls();
 
   /**
    * @returns {HTMLSpanElement | null}
@@ -3452,6 +3642,61 @@
   adhanAudio.addEventListener("play", syncPreviewButtonUi);
   adhanAudio.addEventListener("pause", syncPreviewButtonUi);
   adhanAudio.addEventListener("ended", syncPreviewButtonUi);
+
+  /**
+   * Bottom navigation — toggles `.app-view` visibility only; prayer/audio DOM ids unchanged.
+   * @param {'quran' | 'calendar' | 'home' | 'qibla' | 'settings'} tab
+   */
+  function switchAppTab(tab) {
+    const tabToId = {
+      quran: "view-quran",
+      calendar: "view-calendar",
+      home: "view-home",
+      qibla: "view-qibla",
+      settings: "view-settings",
+    };
+    const targetId = tabToId[tab];
+    if (!targetId) return;
+    const ids = [
+      "view-quran",
+      "view-calendar",
+      "view-home",
+      "view-qibla",
+      "view-settings",
+    ];
+    for (let i = 0; i < ids.length; i++) {
+      const el = document.getElementById(ids[i]);
+      if (!el) continue;
+      const on = el.id === targetId;
+      el.classList.toggle("active", on);
+      el.setAttribute("aria-hidden", on ? "false" : "true");
+    }
+    const nav = document.getElementById("bottom-nav");
+    if (nav) {
+      const btns = nav.querySelectorAll("[data-nav-tab]");
+      btns.forEach(function (b) {
+        const active = b.getAttribute("data-nav-tab") === tab;
+        b.classList.toggle("bottom-nav__btn--active", active);
+        if (active) {
+          b.setAttribute("aria-current", "page");
+        } else {
+          b.removeAttribute("aria-current");
+        }
+      });
+    }
+  }
+
+  const bottomNavEl = document.getElementById("bottom-nav");
+  if (bottomNavEl) {
+    bottomNavEl.addEventListener("click", function (ev) {
+      const btn =
+        ev.target && ev.target.closest ? ev.target.closest("[data-nav-tab]") : null;
+      if (!btn || btn.closest("#bottom-nav") !== bottomNavEl) return;
+      const t = btn.getAttribute("data-nav-tab");
+      if (!t) return;
+      switchAppTab(t);
+    });
+  }
 
   els.btnRequest.addEventListener("click", requestLocation);
   els.btnRetry.addEventListener("click", requestLocation);
