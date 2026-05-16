@@ -2,6 +2,8 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 :root {
@@ -86,6 +88,7 @@
   --radius: 18px;
   --radius-sm: 11px;
   --app-bottom-inset: calc(3.85rem + env(safe-area-inset-bottom, 0px));
+  --bg-color: var(--bg-deep);
   --arabic-font-size: 28px;
   --english-font-size: 16px;
   font-family: "Instrument Sans", system-ui, sans-serif;
@@ -256,6 +259,21 @@ body {
   color: var(--text);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable copy/select where users need it */
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+#view-surah-reader #surah-text-container,
+#view-surah-reader #surah-text-container * {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .ambient {
@@ -2338,9 +2356,18 @@ body.light-theme .quran-view__title-ar {
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.12));
 }
 
-/* Surah reader */
-.app-view--surah-reader {
-  min-height: 0;
+/* Surah reader — flex shell: fixed header, scrolling ayahs */
+#view-surah-reader {
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+#view-surah-reader.active {
+  display: flex;
 }
 
 .surah-reader {
@@ -2349,7 +2376,27 @@ body.light-theme .quran-view__title-ar {
   flex: 1;
   min-height: 0;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
   position: relative;
+}
+
+.reader-header-container {
+  flex-shrink: 0;
+  z-index: 100;
+  background-color: var(--bg-color);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
+}
+
+html[data-theme="light"] .reader-header-container,
+body.light-theme .reader-header-container {
+  border-bottom-color: var(--row-divider-muted);
+  box-shadow:
+    0 6px 18px rgba(17, 56, 34, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .surah-reader__header {
@@ -2357,17 +2404,17 @@ body.light-theme .quran-view__title-ar {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 1rem;
-  padding: 0.25rem 0 1rem;
+  gap: 0.3rem;
+  padding: 0.1rem 0 0;
   text-align: center;
 }
 
 .surah-reader__topbar {
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.65rem;
+  gap: 0.5rem;
   width: 100%;
   text-align: left;
 }
@@ -2378,10 +2425,10 @@ body.light-theme .quran-view__title-ar {
 }
 
 .surah-reader__back {
-  margin: 0 0 0.25rem;
-  padding: 0.45rem 0.65rem;
+  margin: 0;
+  padding: 0.32rem 0.5rem;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--accent-bright);
@@ -2427,11 +2474,11 @@ body.light-theme .surah-reader__back:focus-visible {
 }
 
 .header-btn {
-  margin: 0 0 0.25rem;
-  padding: 0.45rem 0.72rem;
-  min-width: 2.65rem;
+  margin: 0;
+  padding: 0.32rem 0.5rem;
+  min-width: 2.15rem;
   font: inherit;
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--accent-bright);
@@ -2596,9 +2643,9 @@ body.light-theme .font-step-btn:focus-visible {
 .surah-reader__title-ar {
   margin: 0;
   font-family: "Amiri", "Times New Roman", serif;
-  font-size: clamp(1.65rem, 6.5vw, 2.35rem);
+  font-size: clamp(1.1rem, 4.2vw, 1.5rem);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
   background: linear-gradient(to right, #fff2a8, #d4af37);
   -webkit-background-clip: text;
   background-clip: text;
@@ -2610,9 +2657,10 @@ body.light-theme .font-step-btn:focus-visible {
 
 .surah-reader__title-en {
   margin: 0;
-  font-size: clamp(1rem, 3.5vw, 1.2rem);
+  font-size: clamp(0.78rem, 2.6vw, 0.9rem);
   font-weight: 600;
-  letter-spacing: 0.03em;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
   color: var(--text);
 }
 
@@ -2636,25 +2684,49 @@ body.light-theme .surah-reader__title-ar {
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 22rem;
-  margin-left: auto;
-  margin-right: auto;
-  padding-top: 0.35rem;
+  margin: 0;
+  padding-top: 0.1rem;
 }
 
-.surah-reader__actions .btn-preview-adhan {
-  max-width: 100%;
+#view-surah-reader .surah-reader__actions .btn-preview-adhan,
+#view-surah-reader #btn-play-full-surah {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  max-width: none;
+  padding: 8px 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  gap: 0.4rem;
+}
+
+#view-surah-reader .surah-reader__actions .btn-preview-adhan .btn-preview-adhan__icon,
+#view-surah-reader .surah-reader__actions .btn-preview-adhan .play-button__icon {
+  font-size: 0.55rem;
+}
+
+#view-surah-reader .surah-reader__actions .btn-preview-adhan--playing .btn-preview-adhan__icon {
+  font-size: 0.62rem;
 }
 
 /* Premium surah text — scrollable ayah list */
-#surah-text-container.scroll-list {
+#view-surah-reader #surah-text-container.scroll-list {
   flex: 1;
   min-height: 0;
   width: 100%;
-  padding: 0.25rem 0.15rem 0.75rem;
-  margin-top: 0.35rem;
-  border-top: 1px solid var(--border-subtle);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0.15rem 120px;
+  margin-top: 0;
+  border-top: none;
   gap: 0;
+}
+
+#view-surah-reader .ayah-block:first-child {
+  padding-top: 0.75rem;
 }
 
 .surah-text-loading,

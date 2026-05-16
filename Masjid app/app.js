@@ -156,101 +156,109 @@
   const DHUHR_OPENING_TAKBEER_AUDIO_SRC = "./allahu-akbar.mp3";
 
   /**
-   * Master reciter map: Everyayah (fatiha) + mp3quran (surah) + `cdnReciterId` for Islamic Network
-   * full-surah audio (api.alquran.cloud style, e.g. ar.alafasy, ar.muhammadayyoub).
+   * Master reciter map: Everyayah (fatiha ayāt) + mp3quran.net (full surah MP3s).
+   * Salah sequences and the Quran library reader both use {@link buildFullSurahAudioUrl}.
    */
   const RECITER_DATA = {
     alafasy: {
       name: "Mishary Rashid Alafasy",
-      cdnReciterId: "ar.alafasy",
       fatiha: "https://everyayah.com/data/Alafasy_128kbps",
       surah: "https://server8.mp3quran.net/afs",
     },
     basit: {
       name: "Abdul Basit (Murattal)",
-      cdnReciterId: "ar.abdulbasitmurattal",
       fatiha: "https://everyayah.com/data/Abdul_Basit_Murattal_192kbps",
       surah: "https://server7.mp3quran.net/basit",
     },
     ghamdi: {
       name: "Saad Al Ghamdi",
-      cdnReciterId: "ar.saadalghamdi",
       fatiha: "https://everyayah.com/data/Ghamadi_40kbps",
       surah: "https://server7.mp3quran.net/s_gmd",
     },
     shatri: {
       name: "Abu Bakr Al Shatri",
-      cdnReciterId: "ar.shaatree",
       fatiha: "https://everyayah.com/data/Abu_Bakr_Ash-Shaatree_128kbps",
       surah: "https://server11.mp3quran.net/shatri",
     },
     husary: {
       name: "Mahmoud Khalil Al Husary",
-      cdnReciterId: "ar.husary",
       fatiha: "https://everyayah.com/data/Husary_128kbps",
       surah: "https://server13.mp3quran.net/husr",
     },
     maher: {
       name: "Maher Al Muaiqly",
-      cdnReciterId: "ar.mahermuaiqly",
       fatiha: "https://everyayah.com/data/MaherAlMuaiqly128kbps",
       surah: "https://server12.mp3quran.net/maher",
     },
     sudais: {
       name: "Abdur-Rahman As-Sudais",
-      cdnReciterId: "ar.abdurrahmaansudais",
       fatiha: "https://everyayah.com/data/Abdurrahmaan_As-Sudais_192kbps",
       surah: "https://server11.mp3quran.net/sds",
     },
     shuraim: {
       name: "Saud Al-Shuraim",
-      cdnReciterId: "ar.saoodshuraym",
       fatiha: "https://everyayah.com/data/Saood_ash-Shuraym_128kbps",
       surah: "https://server7.mp3quran.net/shur",
     },
     yasser: {
       name: "Yasser Al-Dosari",
-      cdnReciterId: "ar.yasser_aldosari",
       fatiha: "https://everyayah.com/data/Yasser_Ad-Dussary_128kbps",
       surah: "https://server11.mp3quran.net/yasser",
     },
     basfar: {
       name: "Abdullah Basfar",
-      cdnReciterId: "ar.abdullahbasfar",
       fatiha: "https://everyayah.com/data/Abdullah_Basfar_192kbps",
       surah: "https://server6.mp3quran.net/bsfr",
     },
     fares: {
       name: "Fares Abbad",
-      cdnReciterId: "ar.faresabbad",
       fatiha: "https://everyayah.com/data/Fares_Abbad_64kbps",
       surah: "https://server8.mp3quran.net/frs_a",
     },
     ayyub: {
       name: "Muhammad Ayyub",
-      cdnReciterId: "ar.muhammadayyoub",
       fatiha: "https://everyayah.com/data/Muhammad_Ayyoub_128kbps",
       surah: "https://server8.mp3quran.net/ayyub",
     },
     qatami: {
       name: "Nasser Al Qatami",
-      cdnReciterId: "ar.nasserqatami",
       fatiha: "https://everyayah.com/data/Nasser_Alqatami_128kbps",
       surah: "https://server6.mp3quran.net/qtm",
     },
     bukhatir: {
       name: "Salah Bukhatir",
-      cdnReciterId: "ar.salahbudair",
       fatiha: "https://everyayah.com/data/Salah_Bukhatir_128kbps",
       surah: "https://server8.mp3quran.net/s_bud",
     },
     jaber: {
       name: "Ali Jaber",
-      cdnReciterId: "ar.alijaber",
       fatiha: "https://everyayah.com/data/Ali_Jaber_64kbps",
       surah: "https://server11.mp3quran.net/a_jbr",
     },
   };
+
+  /**
+   * @param {number} surahNumber 1–114
+   * @returns {string} e.g. "018.mp3"
+   */
+  function formatSurahMp3Filename(surahNumber) {
+    const n = Math.max(1, Math.min(114, Math.floor(Number(surahNumber))));
+    return String(n).padStart(3, "0") + ".mp3";
+  }
+
+  /**
+   * Full-surah MP3 URL — same mp3quran pattern as Salah {@link applyReciter} surah steps.
+   * @param {number} surahNumber
+   * @param {string} [reciterId] {@link RECITER_DATA} key; defaults to {@link currentReciterId}
+   * @returns {string}
+   */
+  function buildFullSurahAudioUrl(surahNumber, reciterId) {
+    const id = reciterId || currentReciterId;
+    const entry = RECITER_DATA[id];
+    if (!entry || !entry.surah) return "";
+    const base = entry.surah.replace(/\/$/, "");
+    return base + "/" + formatSurahMp3Filename(surahNumber);
+  }
 
   let currentActiveSurah = 0;
   const surahFullPlayer = new Audio();
@@ -280,12 +288,10 @@
   }
 
   function onSurahFullPlayClick() {
-    const reciterSel = document.getElementById("settings-reciter-select");
-    if (!reciterSel || !currentActiveSurah) return;
-    const reciterValue = reciterSel.value;
-    if (!reciterValue) return;
-    const audioUrl = `https://cdn.islamic.network/quran/audio-surah/128/${reciterValue}/${currentActiveSurah}.mp3`;
-    const needle = "/" + reciterValue + "/" + currentActiveSurah + ".mp3";
+    if (!currentActiveSurah) return;
+    const audioUrl = buildFullSurahAudioUrl(currentActiveSurah, currentReciterId);
+    if (!audioUrl) return;
+    const needle = "/" + formatSurahMp3Filename(currentActiveSurah);
     let srcMatches = false;
     try {
       srcMatches = !!(surahFullPlayer.currentSrc && surahFullPlayer.currentSrc.indexOf(needle) !== -1);
@@ -4032,7 +4038,20 @@
     };
     const targetId = tabToId[tab];
     if (!targetId) return;
+
     const readerEl = document.getElementById("view-surah-reader");
+    const readerWasOpen =
+      !!(readerEl && readerEl.classList.contains("active"));
+    let surahAudioPlaying = false;
+    try {
+      surahAudioPlaying = !surahFullPlayer.paused;
+    } catch {
+      /* ignore */
+    }
+    if (readerWasOpen || surahAudioPlaying) {
+      stopSurahFullPlayback();
+    }
+
     if (readerEl) {
       readerEl.classList.remove("active");
       readerEl.setAttribute("aria-hidden", "true");
@@ -4208,7 +4227,7 @@
         saveLastReadSnapshot(ayahNum);
       },
       {
-        root: null,
+        root: container,
         rootMargin: "-50% 0px -50% 0px",
         threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
       }
@@ -4559,21 +4578,20 @@
     }
     if (!RECITER_DATA[currentReciterId]) currentReciterId = "alafasy";
     if (sel) {
-      sel.replaceChildren();
-      Object.keys(RECITER_DATA).forEach(function (id) {
-        const opt = document.createElement("option");
-        opt.value = RECITER_DATA[id].cdnReciterId;
-        opt.textContent = RECITER_DATA[id].name;
-        opt.dataset.reciterKey = id;
-        sel.appendChild(opt);
-      });
-      sel.value = RECITER_DATA[currentReciterId].cdnReciterId;
+      if (!sel.options.length) {
+        Object.keys(RECITER_DATA).forEach(function (id) {
+          const opt = document.createElement("option");
+          opt.value = id;
+          opt.textContent = RECITER_DATA[id].name;
+          sel.appendChild(opt);
+        });
+      }
+      sel.value = currentReciterId;
     }
     applyReciter(currentReciterId);
     if (!sel) return;
     sel.addEventListener("change", function () {
-      const opt = sel.options[sel.selectedIndex];
-      const id = opt && opt.dataset.reciterKey;
+      const id = sel.value;
       if (!id || !RECITER_DATA[id]) return;
       stopSurahFullPlayback();
       applyReciter(id);
@@ -4732,6 +4750,7 @@
     surahSearchInput.addEventListener("input", applySurahSearchFilter);
   }
 
+
   loadQuranIndex();
 
   checkLastRead();
@@ -4743,6 +4762,10 @@
   }
 
   syncFontStepButtonsDisabled();
+
+  if (window.MasjidCalendar && typeof window.MasjidCalendar.init === "function") {
+    window.MasjidCalendar.init();
+  }
 
   requestLocation();
   window.setInterval(checkPrayerAlarms, 1000);

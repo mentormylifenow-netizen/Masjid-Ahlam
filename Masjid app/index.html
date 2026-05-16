@@ -16,6 +16,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="calendar.css" />
   </head>
   <body>
     <div class="ambient" aria-hidden="true"></div>
@@ -54,7 +55,8 @@
         aria-hidden="true"
       >
         <div class="surah-reader">
-          <header class="surah-reader__header">
+          <div class="reader-header-container">
+            <header class="surah-reader__header">
             <div class="surah-reader__topbar">
               <button
                 type="button"
@@ -153,6 +155,7 @@
               </button>
             </div>
           </header>
+          </div>
           <div id="surah-text-container" class="scroll-list"></div>
         </div>
       </div>
@@ -379,9 +382,47 @@
       </div>
       </div>
 
-      <div id="view-calendar" class="app-view" aria-hidden="true">
-        <div class="app-view__placeholder">
-          <p class="app-view__placeholder-title">Calendar Coming Soon</p>
+      <div id="view-calendar" class="app-view app-view--calendar" aria-hidden="true">
+        <div class="calendar-view">
+          <header class="calendar-view__header">
+            <h1 class="calendar-view__title">Prayer Streak</h1>
+            <p class="calendar-view__subtitle">Track your daily consistency</p>
+          </header>
+          <section class="calendar-panel" aria-label="Monthly prayer tracker">
+            <div class="calendar-nav">
+              <button
+                type="button"
+                id="calendar-prev"
+                class="calendar-nav__btn"
+                aria-label="Previous month"
+              >
+                &lt;
+              </button>
+              <div class="calendar-nav__center">
+                <h2 id="calendar-month-title" class="calendar-nav__title">May 2026</h2>
+                <div id="hijri-subtitle" class="calendar-hijri-subtitle"></div>
+              </div>
+              <button
+                type="button"
+                id="calendar-next"
+                class="calendar-nav__btn"
+                aria-label="Next month"
+              >
+                &gt;
+              </button>
+            </div>
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span class="calendar-weekdays__day">S</span>
+              <span class="calendar-weekdays__day">M</span>
+              <span class="calendar-weekdays__day">T</span>
+              <span class="calendar-weekdays__day">W</span>
+              <span class="calendar-weekdays__day">T</span>
+              <span class="calendar-weekdays__day">F</span>
+              <span class="calendar-weekdays__day">S</span>
+            </div>
+            <div id="calendar-grid" class="calendar-grid" aria-label="Prayer tracker calendar"></div>
+            <div id="calendar-holidays" class="holiday-list" aria-label="Islamic holidays this month"></div>
+          </section>
         </div>
       </div>
 
@@ -469,7 +510,23 @@
                   id="settings-reciter-select"
                   class="settings-reciter-select settings-row__control"
                   aria-label="Default reciter for Qur’an playback"
-                ></select>
+                >
+                  <option value="alafasy">Mishary Rashid Alafasy</option>
+                  <option value="basit">Abdul Basit (Murattal)</option>
+                  <option value="ghamdi">Saad Al Ghamdi</option>
+                  <option value="shatri">Abu Bakr Al Shatri</option>
+                  <option value="husary">Mahmoud Khalil Al Husary</option>
+                  <option value="maher">Maher Al Muaiqly</option>
+                  <option value="sudais">Abdur-Rahman As-Sudais</option>
+                  <option value="shuraim">Saud Al-Shuraim</option>
+                  <option value="yasser">Yasser Al-Dosari</option>
+                  <option value="basfar">Abdullah Basfar</option>
+                  <option value="fares">Fares Abbad</option>
+                  <option value="ayyub">Muhammad Ayyub</option>
+                  <option value="qatami">Nasser Al Qatami</option>
+                  <option value="bukhatir">Salah Bukhatir</option>
+                  <option value="jaber">Ali Jaber</option>
+                </select>
               </div>
               <div class="settings-divider" aria-hidden="true"></div>
               <div class="settings-row settings-row--split">
@@ -609,6 +666,7 @@
       </button>
     </nav>
 
+    <script src="calendar.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
