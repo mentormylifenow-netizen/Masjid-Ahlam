@@ -24,9 +24,136 @@
     <p id="location-line" class="hidden" aria-hidden="true"></p>
 
     <main class="shell">
-      <div id="view-quran" class="app-view" aria-hidden="true">
-        <div class="app-view__placeholder">
-          <p class="app-view__placeholder-title">Quran Library Coming Soon</p>
+      <div id="view-quran" class="app-view app-view--quran" aria-hidden="true">
+        <div class="quran-view">
+          <header class="quran-view__header">
+            <p class="quran-view__title-ar" lang="ar" dir="rtl">القرآن الكريم</p>
+            <h1 class="quran-view__title">The Noble Quran</h1>
+          </header>
+          <div id="resume-reading-banner" style="display: none;"></div>
+          <div id="quran-list-container" class="scroll-list quran-list-container">
+            <div class="search-container">
+              <input
+                type="text"
+                id="surah-search"
+                placeholder="Search by name or number..."
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+                aria-label="Search surahs by name or number"
+              />
+            </div>
+            <div id="quran-surah-rows" class="quran-surah-rows"></div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        id="view-surah-reader"
+        class="app-view app-view--surah-reader"
+        aria-hidden="true"
+      >
+        <div class="surah-reader">
+          <header class="surah-reader__header">
+            <div class="surah-reader__topbar">
+              <button
+                type="button"
+                id="btn-surah-reader-back"
+                class="surah-reader__back"
+              >
+                ← Back to Library
+              </button>
+              <div class="surah-reader__header-actions">
+                <button
+                  type="button"
+                  id="font-settings-btn"
+                  class="header-btn"
+                  aria-label="Reading preferences — text sizes"
+                  aria-expanded="false"
+                  aria-controls="font-settings-panel"
+                >
+                  Aa
+                </button>
+                <div
+                  id="font-settings-panel"
+                  class="settings-popover"
+                  style="display: none;"
+                  role="dialog"
+                  aria-label="Reading preferences"
+                  aria-hidden="true"
+                >
+                  <div class="font-settings-row">
+                    <span class="font-settings-label">Arabic Size</span>
+                    <div class="font-settings-controls">
+                      <button
+                        type="button"
+                        class="font-step-btn"
+                        data-font-type="arabic"
+                        data-font-action="decrease"
+                        aria-label="Decrease Arabic size"
+                      >
+                        −
+                      </button>
+                      <button
+                        type="button"
+                        class="font-step-btn"
+                        data-font-type="arabic"
+                        data-font-action="increase"
+                        aria-label="Increase Arabic size"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                  <div class="font-settings-row">
+                    <span class="font-settings-label">Translation Size</span>
+                    <div class="font-settings-controls">
+                      <button
+                        type="button"
+                        class="font-step-btn"
+                        data-font-type="english"
+                        data-font-action="decrease"
+                        aria-label="Decrease translation size"
+                      >
+                        −
+                      </button>
+                      <button
+                        type="button"
+                        class="font-step-btn"
+                        data-font-type="english"
+                        data-font-action="increase"
+                        aria-label="Increase translation size"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <h2
+              id="surah-reader-title-ar"
+              class="surah-reader__title-ar"
+              lang="ar"
+              dir="rtl"
+            ></h2>
+            <h2 id="surah-reader-title-en" class="surah-reader__title-en"></h2>
+            <div class="surah-reader__actions">
+              <button
+                type="button"
+                id="btn-play-full-surah"
+                class="btn-preview-adhan play-button"
+                aria-label="Play full surah"
+              >
+                <span
+                  class="btn-preview-adhan__icon play-button__icon"
+                  aria-hidden="true"
+                >▶</span>
+                <span class="btn-preview-adhan__label">Play Full Surah</span>
+              </button>
+            </div>
+          </header>
+          <div id="surah-text-container" class="scroll-list"></div>
         </div>
       </div>
 
